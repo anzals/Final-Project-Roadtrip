@@ -38,14 +38,14 @@ function Form({ route, method }) {
             <h1>{name}</h1>
             <input
                 className="form-input"
-                type="text"
+                type="text" // input type
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Username"
             />
             <input
                 className="form-input"
-                type="password"
+                type="password" // input type
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
