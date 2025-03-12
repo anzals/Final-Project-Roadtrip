@@ -24,7 +24,7 @@ function Form({ route, method }) {
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
                 navigate("/")
             } else {
-                navigate("/login")
+                navigate("/login") // show login page
             }
         } catch (error) {
             alert(error)
@@ -51,7 +51,7 @@ function Form({ route, method }) {
                 placeholder="Password"
             />
             {loading && <LoadingIndicator />}
-            <button className="form-button" type="submit">
+            <button className="form-button" type="submit"> 
                 {name}
             </button>
         </form>
