@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom"; // Import Link for navigation
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
-import "../styles/Form.css"
+import "../styles/Form.css";
 import LoadingIndicator from "./LoadingIndicator";
 
 function Form({ route, method }) {
@@ -11,51 +12,74 @@ function Form({ route, method }) {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const name = method === "login" ? "Login" : "Register";
+    const name = method === "login" ? "Login" : "Sign Up";
+    const imageSrc = method === "login" ? "/images/login-img.jpg" : "/images/signup-img.jpg";
+
+    // Dynamic link text and route
+    const linkText = method === "login" ? "Sign up" : "Login";
+    const linkRoute = method === "login" ? "/register" : "/login";
+    const linkMessage = method === "login" 
+        ? "Don't have an account yet?" 
+        : "Already have an account?";
 
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
 
         try {
-            const res = await api.post(route, { username, password })
+            const res = await api.post(route, { username, password });
             if (method === "login") {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-                navigate("/")
+                navigate("/");
             } else {
-                navigate("/login") // show login page
+                navigate("/login"); // Redirect to login page after registering
             }
         } catch (error) {
-            alert(error)
+            alert(error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="form-container">
-            <h1>{name}</h1>
-            <input
-                className="form-input"
-                type="text" // input type
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Username"
-            />
-            <input
-                className="form-input"
-                type="password" // input type
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-            />
-            {loading && <LoadingIndicator />}
-            <button className="form-button" type="submit"> 
-                {name}
-            </button>
-        </form>
-    );
+        <div className="form-wrapper">
+            <div className="form-grid">
+                {/* Image Section */}
+                <div className="form-image-container">
+                    <img src={imageSrc} alt="Form visual" className="form-image" />
+                </div>
+    
+                {/* Form Section */}
+                <div className="form-content-container">
+                    <h1 className="form-title">{name}</h1>
+                    <form onSubmit={handleSubmit}>
+                        <input 
+                            className="form-input" 
+                            type="text" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)} 
+                            placeholder="Email" 
+                        />
+                        <input 
+                            className="form-input" 
+                            type="password" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            placeholder="Password" 
+                        />
+                        {loading && <LoadingIndicator />}
+                        <button className="form-button" type="submit">{name}</button>
+                    </form>
+
+                    {/* Add navigation link */}
+                    <p className="form-link">
+                        {linkMessage} <Link to={linkRoute} className="link-text">{linkText}</Link>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );    
 }
 
-export default Form
+export default Form;

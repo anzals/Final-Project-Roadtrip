@@ -1,0 +1,30 @@
+.footer {
+    width: 100vw; /* Ensure it never exceeds viewport width */
+    max-width: 100%; /* Prevents overflow */
+    background-color: #e0e0e0;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    overflow-x: hidden; /* Explicitly hide horizontal overflow */
+    box-sizing: border-box; /* Ensures padding doesn’t expand width */
+}
+
+.contact-info h3 {
+    margin-bottom: 5px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap; /* Ensures items don't force a horizontal scroll */
+}
+
+/* Ensure icons stay within bounds */
+.social-icon {
+    font-size: 24px;
+    text-decoration: none;
+    overflow: hidden;
+    max-width: 100%;
+}

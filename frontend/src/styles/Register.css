@@ -1,0 +1,37 @@
+.register-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.register-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Adjust input styles for register */
+.register-container .form-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: #FDFBF5;
+}
+
+/* Ensure first & last name inputs are side-by-side */
+.register-container .name-inputs {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.register-container .name-inputs input {
+    flex: 1;
+}
