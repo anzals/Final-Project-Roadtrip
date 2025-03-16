@@ -1,17 +1,21 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Note
+from .models import CustomUser
 
 # Serializers act as a bridge, converting Django models (python objects) to JSON which APIs communicate with.
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["id", "username", "password"]
-        extra_kwargs = {"password": {"write_only": True}} # Prevents password from being exposed in responses
+        model = CustomUser
+        fields = ["id", "email", "password"]
+        extra_kwargs = {
+            "password": {"write_only": True},  # Prevents password from being exposed
+            "email": {"required": True}  # Ensure email is required
+        }
 
     def create(self, validated_data):
         print(validated_data)
-        user = User.objects.create_user(**validated_data) # Creates a new user securely
+        user = CustomUser.objects.create_user(**validated_data)
         return user
 
 

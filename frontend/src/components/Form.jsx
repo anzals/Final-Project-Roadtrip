@@ -7,7 +7,7 @@ import "../styles/Form.css";
 import LoadingIndicator from "./LoadingIndicator";
 
 function Form({ route, method }) {
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -27,7 +27,7 @@ function Form({ route, method }) {
         e.preventDefault();
 
         try {
-            const res = await api.post(route, { username, password });
+            const res = await api.post(route, { email, password });
             if (method === "login") {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
@@ -57,8 +57,8 @@ function Form({ route, method }) {
                         <input 
                             className="form-input" 
                             type="text" 
-                            value={username} 
-                            onChange={(e) => setUsername(e.target.value)} 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
                             placeholder="Email" 
                         />
                         <input 
