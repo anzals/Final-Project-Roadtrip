@@ -14,24 +14,61 @@
     width: 100%;
 }
 
-/* Adjust input styles for register */
-.register-container .form-input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-    background-color: #FDFBF5;
-}
-
-/* Ensure first & last name inputs are side-by-side */
-.register-container .name-inputs {
+.register-form {
     display: flex;
-    justify-content: space-between;
-    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    max-width: 350px;
+    padding: 20px;
+    overflow: hidden;
 }
 
-.register-container .name-inputs input {
-    flex: 1;
+/* Ensure First & Last Name fields together match Email width */
+.name-inputs {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 350px;
 }
+
+/* Make each name field take up half the space */
+.name-inputs input {
+    width: 50%;
+    flex: 1;
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .register-container {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .form-content-container {
+      width: 90%; /* Shrink width dynamically */
+      max-width: 350px; /* Prevent form from being too large */
+    }
+
+    .register-container {
+        flex-direction: column;
+        align-items: center;
+      }
+  
+    .register-form,
+    .login-form {
+      width: 100%; /* Take full width of container */
+      max-width: 350px;
+    }
+  
+    .name-inputs {
+      flex-direction: column; /* Stack first and last name fields */
+      width: 100%;
+    }
+  
+    .name-inputs input {
+      width: 100%;
+    }
+  }
+  

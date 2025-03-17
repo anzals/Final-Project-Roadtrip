@@ -7,16 +7,22 @@ from .models import CustomUser
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["id", "email", "password"]
+        fields = ["id", "email", "first_name", "last_name", "password"]
         extra_kwargs = {
             "password": {"write_only": True},  # Prevents password from being exposed
-            "email": {"required": True}  # Ensure email is required
+            "email": {"required": True},  # Ensure email is required
+            "first_name": {"required": False},
+            "last_name": {"required": False},
         }
 
     def create(self, validated_data):
-        print(validated_data)
+    
+        if "first_name" not in validated_data or "last_name" not in validated_data:
+            raise serializers.ValidationError("First name and last name are required for registration.")
+        
         user = CustomUser.objects.create_user(**validated_data)
         return user
+
 
 
 class NoteSerializer(serializers.ModelSerializer):
