@@ -1,6 +1,6 @@
 .home-content {
   grid-area: home-content;
-  background-color: lightcoral;
+  background-color: rgb(255, 255, 255);
   padding: 20px;
  }
  
@@ -20,7 +20,7 @@
  }
  
 
- .title-container p{
+ .title-container p {
   grid-column: 1; 
   grid-row: 2;
   margin: 0;  
@@ -29,14 +29,26 @@
   font-style: italic;
  }
 
- .title-container a{
+ .title-container a {
+  background-color: #2C3E50; 
   color: white;
   border: none;
+  display: flex;
+  justify-content: center;
   padding: 10px 15px;
-  border-radius: 5px;
+  border-radius: 50px;
+  text-decoration: none;
   cursor: pointer;
-  font-size: 1rem;
   justify-self: end;
+}
+
+.title-container a button {
+  all: unset; /* Removes default button styles */
+  color: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
 }
 
 .planner {
@@ -49,20 +61,7 @@
   font-size: 45px;
 }
  
- 
-.new-trip-container {
-  align-content: center;
- }
- 
- 
- .new-trip-container button {
-  border: none;
-  border-radius: 15px;
-  padding: 5px 10px;
- }
- 
- 
- .trip-container {
+.trip-container {
   display: grid;
   justify-content: center;
   grid-template-areas:
@@ -70,39 +69,7 @@
     "trip"
     "trip";
   grid-template-columns: 30% 30% 30%;
-
- }
-
- .trips {
-  display: grid;
-  background-color: #f9f9f9;
-  border-left: 5px solid #007bff;
-  margin: 15px;
-  padding: 10px 15px;
+  padding: 10px;
+  margin: 20px 0;
   border-radius: 5px;
  }
- 
- 
- .trip-container .trip {
-  display: flex;
-  justify-content: center;
-  height: 200px;
- }
- 
- 
- .trip .planned-trips-container {
-  height: 100%;
-  display: grid;
-  justify-content: space-evenly;
- }
- 
- 
- .planned-trips-container span {
-  width: fit-content;
-  align-self: center;
- }
- .planned-trips-container button {
-  width: fit-content;
-  align-self: center;
- }
- 

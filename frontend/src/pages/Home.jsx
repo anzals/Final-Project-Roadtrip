@@ -33,7 +33,7 @@ function Home({ trips, getTrips }) {
                         <span className="introduction-text">Welcome back, Jane!</span>
                         <p className="adventure-tag">Ready for your next adventure?</p>
                         <Link to="/plan-trip">
-                        <button className="plan-trip-button">
+                        <button>
                             + Plan a Trip
                         </button>
                         </Link>

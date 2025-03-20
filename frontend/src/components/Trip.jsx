@@ -10,7 +10,7 @@ function Trip({ trip, onDelete }) {
     return (
         <div className="trips">
             <p className="trip-title">{trip.title}</p>
-            <p className="trip-content">{trip.content}</p>
+            {/*<p className="trip-content">{trip.content}</p>*/}
             <p className="trip-date">{formattedDate}</p>
             <button className="details-button" onClick={() => navigate(`/trip/${trip.id}`)}>
                 See Details
