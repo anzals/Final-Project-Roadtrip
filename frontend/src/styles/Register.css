@@ -47,8 +47,8 @@
     }
 
     .form-content-container {
-      width: 90%; /* Shrink width dynamically */
-      max-width: 350px; /* Prevent form from being too large */
+      width: 90%; 
+      max-width: 350px; 
     }
 
     .register-container {
@@ -58,12 +58,12 @@
   
     .register-form,
     .login-form {
-      width: 100%; /* Take full width of container */
+      width: 100%; 
       max-width: 350px;
     }
   
     .name-inputs {
-      flex-direction: column; /* Stack first and last name fields */
+      flex-direction: column;
       width: 100%;
     }
   

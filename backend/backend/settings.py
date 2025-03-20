@@ -89,7 +89,7 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL = "api.CustomUser"  # Replace with your app name
+AUTH_USER_MODEL = "api.RoadtripUser"  # Replace with your app name
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 

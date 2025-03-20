@@ -1,60 +1,108 @@
-/* Container for the whole page */
-div {
-  font-family: Arial, sans-serif;
-}
+.home-content {
+  grid-area: home-content;
+  background-color: lightcoral;
+  padding: 20px;
+ }
+ 
+ 
+.title-container {
+  display: grid;
+  grid-template-columns: 70% 30%;
+  grid-template-rows: 70% 30%;
+ }
+ 
+ 
+ .title-container span {
+  grid-column: span 2;
+  font-size: 64px;
+  font-weight: 400;
+  color: #008080;
+ }
+ 
 
-/* Styles for the notes section */
-.notes-section {
-  margin-bottom: 2rem;
-}
+ .title-container p{
+  grid-column: 1; 
+  grid-row: 2;
+  margin: 0;  
+  padding: 0; 
+  font-size: 32px;
+  font-style: italic;
+ }
 
-.notes-section h2 {
-  color: #333;
-  font-size: 24px;
-}
-
-/* Styles for individual notes - assuming your Note component has some container element */
-.note {
-  background-color: #f9f9f9;
-  border-left: 5px solid #007bff;
-  margin: 10px 0;
+ .title-container a{
+  color: white;
+  border: none;
   padding: 10px 15px;
   border-radius: 5px;
-}
-
-/* Styles for the form section */
-
-form h2 {
-  color: #333;
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-form label {
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-form input,
-form textarea {
-  width: 100%;
-  padding: 8px;
-  margin: 8px 0 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-form input[type="submit"] {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem;
+  justify-self: end;
 }
 
-form input[type="submit"]:hover {
-  background-color: #0056b3;
+.planner {
+  margin-top: 20px;
 }
+
+.my-trips {
+  display: flex;
+  justify-content: center;
+  font-size: 45px;
+}
+ 
+ 
+.new-trip-container {
+  align-content: center;
+ }
+ 
+ 
+ .new-trip-container button {
+  border: none;
+  border-radius: 15px;
+  padding: 5px 10px;
+ }
+ 
+ 
+ .trip-container {
+  display: grid;
+  justify-content: center;
+  grid-template-areas:
+    "trip"
+    "trip"
+    "trip";
+  grid-template-columns: 30% 30% 30%;
+
+ }
+
+ .trips {
+  display: grid;
+  background-color: #f9f9f9;
+  border-left: 5px solid #007bff;
+  margin: 15px;
+  padding: 10px 15px;
+  border-radius: 5px;
+ }
+ 
+ 
+ .trip-container .trip {
+  display: flex;
+  justify-content: center;
+  height: 200px;
+ }
+ 
+ 
+ .trip .planned-trips-container {
+  height: 100%;
+  display: grid;
+  justify-content: space-evenly;
+ }
+ 
+ 
+ .planned-trips-container span {
+  width: fit-content;
+  align-self: center;
+ }
+ .planned-trips-container button {
+  width: fit-content;
+  align-self: center;
+ }
+ 

@@ -1,9 +1,11 @@
 from django.urls import path
+from .views import TripDetailView
 from . import views
 
 # defines api endpoints
 
 urlpatterns = [
-    path("notes/", views.NoteListCreate.as_view(), name="note-list"),
-    path("notes/delete/<int:pk>/", views.NoteDelete.as_view(), name="delete-note"),
+    path("trips/", views.TripListCreate.as_view(), name="trip-list"),
+    path("trips/<int:pk>/", TripDetailView.as_view(), name="trip-detail"),
+    path("trips/delete/<int:pk>/", views.TripDelete.as_view(), name="delete-trip"),
 ]

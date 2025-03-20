@@ -1,10 +1,13 @@
-import react from "react"
-import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom"
-import Login from "./pages/Login"
-import Register from "./pages/Register"
-import Home from "./pages/Home"
-import NotFound from "./pages/NotFound"
-import ProtectedRoute from "./components/ProtectedRoute"
+import react, { useState } from "react";
+import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import PlanTrip from "./pages/PlanTrip";
+import TripDetails from "./pages/TripDetails";
+import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
+import api from "./api";
 
 function Logout() {
   localStorage.clear()
@@ -17,6 +20,19 @@ function RegisterAndLogout() {
 }
 
 function App() {
+
+  const [trips, setTrips] = useState([]);
+
+  const getTrips = () => {
+    api.get("/api/trips/")
+      .then((res) => setTrips(res.data))
+      .catch((err) => alert(err));
+  };
+
+  const addTrip = (trip) => {
+    setTrips([...trips, trip]); 
+  };
+
   return (
     <BrowserRouter>
       <Routes>
@@ -24,7 +40,23 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <Home />
+              <Home trips={trips} getTrips={getTrips} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/plan-trip"
+          element={
+            <ProtectedRoute>
+              <PlanTrip addTrip={addTrip} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trip/:id" 
+          element={
+            <ProtectedRoute>
+              <TripDetails />
             </ProtectedRoute>
           }
         />

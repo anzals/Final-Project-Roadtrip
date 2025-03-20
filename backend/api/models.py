@@ -2,16 +2,16 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.conf import settings
 
-class Note(models.Model):
-    title = models.CharField(max_length=100) # short title for Note
-    content = models.TextField() # the content of the Note
-    created_at = models.DateTimeField(auto_now_add=True) # automatically sets the timestamp for when the note was created
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes") 
+class Trip(models.Model):
+    title = models.CharField(max_length=100) # short title for Trip
+    content = models.TextField() # the content of the Trip
+    created_at = models.DateTimeField(auto_now_add=True) # automatically sets the timestamp for when the trip was created
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trips") 
 
     def __str__(self):
         return self.title
 
-class CustomUserManager(BaseUserManager):
+class RoadtripUserManager(BaseUserManager):
     def create_user(self, email, password=None, first_name="", last_name="", **extra_fields):
         """Creates and returns a regular user with only an email."""
         if not email:
@@ -22,19 +22,14 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        """Creates and returns a superuser."""
-        extra_fields.setdefault("is_staff", True)  # Allows admin access
-        return self.create_user(email, password, **extra_fields)
-
-class CustomUser(AbstractBaseUser):
+class RoadtripUser(AbstractBaseUser):
     email = models.EmailField(unique=True)  # Use email as the only identifier
     first_name = models.CharField(max_length=30, blank=True, null=True)  
     last_name = models.CharField(max_length=30, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)  # Allows Django Admin access if needed
 
-    objects = CustomUserManager()
+    objects = RoadtripUserManager()
 
     USERNAME_FIELD = "email"  # Only email is used for login
     REQUIRED_FIELDS = ["first_name", "last_name"]

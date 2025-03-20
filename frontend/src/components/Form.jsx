@@ -16,7 +16,6 @@ function Form({ route, method }) {
 
     const name = method === "login" ? "Login" : "Register";
     const imageSrc = method === "login" ? "images/login-img.jpg" : "images/signup-img.jpg";
-    console.log("Image Path:", imageSrc);  // Debugging log
     <img src={imageSrc} alt="Form visual" className="form-image" onError={() => console.log("Image failed to load:", imageSrc)} />
 
 
