@@ -7,11 +7,18 @@ function Trip({ trip, onDelete }) {
     const navigate = useNavigate();
     const formattedDate = new Date(trip.created_at).toLocaleDateString("en-UK")
 
+    const formattedTripDate = trip.tripDate
+        ? new Date(trip.tripDate).toLocaleDateString("en-UK", {
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        })
+        : "No date provided";
+
     return (
         <div className="trips">
             <p className="trip-title">{trip.title}</p>
-            {/*<p className="trip-content">{trip.content}</p>*/}
-            <p className="trip-date">{formattedDate}</p>
+            <p className="trip-date">{formattedTripDate}</p>
             <button className="details-button" onClick={() => navigate(`/trip/${trip.id}`)}>
                 See Details
             </button>

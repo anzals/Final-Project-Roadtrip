@@ -25,5 +25,5 @@ class UserSerializer(serializers.ModelSerializer):
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
-        fields = ["id", "title", "content", "created_at", "author"]
+        fields = ["id", "title", "startLocation", "destination", "tripDate", "created_at", "author"]
         extra_kwargs = {"author": {"read_only": True}} # Ensures author is set automatically

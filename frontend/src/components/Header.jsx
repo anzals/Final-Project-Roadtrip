@@ -22,15 +22,14 @@ const Header = () => {
         <header className="header">
             <div className="logo">
                 <img src="/images/logo.png" alt="Road Trip Mate Logo" className="logo-img"/>
-                <h1>Road Trip Mate</h1>
             </div>
-            <hr className="header-line" />
-
+            <h1>Road Trip Mate</h1>
             {isLoggedIn && (
                 <button className="logout-btn" onClick={handleLogout}>
                     Logout
                 </button>
             )}
+            <div className="header-line" />
         </header>
     );
 };

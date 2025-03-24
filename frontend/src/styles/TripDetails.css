@@ -1,0 +1,69 @@
+/* Center the container */
+.trip-details-container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    border: 5px solid #8ab4b3;
+    margin: 50px auto;
+}
+
+/* Title */
+.trip-details-container h2 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Styling for trip details */
+.trip-details-container p {
+    font-size: 16px;
+    color: #333;
+    text-align: left;
+    margin: 8px 0;
+    padding-left: 10px;
+}
+
+/* Labels */
+.trip-details-container p strong {
+    font-weight: bold;
+}
+
+/* Make trip name, start, and destination bold */
+.trip-details-container p span {
+    font-weight: normal;
+}
+
+/* Buttons */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Button styling */
+.generate-route, .back-button {
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+/* Generate Route Button */
+.generate-route {
+    background-color: #8ab4b3;
+    color: black;
+}
+
+
+/* Button hover effects */
+.generate-route:hover {
+    background-color: #6a9c9b;
+}

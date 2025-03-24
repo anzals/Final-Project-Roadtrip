@@ -32,10 +32,16 @@ function TripDetails() {
     if (!trip) return <p>Loading trip details...</p>;
     if (!trip) return <p>Error loading trip. Please try again.</p>;
 
+    if (loading) return <p>Loading trip details...</p>;
+    if (error) return <p>{error}</p>;
+
     return (
         <div className="trip-details-container">
             <h2 className="trip-title">{trip.title}</h2>
-            <p className="trip-content">{trip.content}</p>
+            <p>Start Location:{trip.startLocation}</p>
+            <p>Destination:{trip.destination}</p>
+            <p>Trip Date: {trip.tripDate}</p>
+
 
             <div className="buttons">
                 <button className="generate-route">Generate Route</button>

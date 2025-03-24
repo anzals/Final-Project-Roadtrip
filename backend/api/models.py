@@ -4,7 +4,9 @@ from django.conf import settings
 
 class Trip(models.Model):
     title = models.CharField(max_length=100) # short title for Trip
-    content = models.TextField() # the content of the Trip
+    startLocation = models.CharField(max_length=255)  # New field
+    destination = models.CharField(max_length=255)  # New field
+    tripDate = models.DateField()  # New field
     created_at = models.DateTimeField(auto_now_add=True) # automatically sets the timestamp for when the trip was created
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trips") 
 

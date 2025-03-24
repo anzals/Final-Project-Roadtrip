@@ -60,16 +60,23 @@
   justify-content: center;
   font-size: 45px;
 }
- 
-.trip-container {
+
+ .trip-container {
   display: grid;
-  justify-content: center;
-  grid-template-areas:
-    "trip"
-    "trip"
-    "trip";
-  grid-template-columns: 30% 30% 30%;
+  grid-template-columns: 1fr;
+  gap: 20px;
   padding: 10px;
-  margin: 20px 0;
-  border-radius: 5px;
- }
+  margin: 20px auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .trip-container {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1000px;
+  }
+}
+
+
+
+

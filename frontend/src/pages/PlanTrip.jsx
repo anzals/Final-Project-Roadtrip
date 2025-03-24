@@ -5,15 +5,16 @@ import Trip from "../components/Trip"
 import "../styles/PlanTrip.css"
 
 function PlanTrip({ addTrip }) {
-    const [content, setContent] = useState("");
     const [title, setTitle] = useState("");
-    const [tripCreated, setTripCreated] = useState(false);
+    const [startLocation, setStartLocation] = useState("");
+    const [destination, setDestination] = useState("");
+    const [tripDate, setTripDate] = useState("");  
     const navigate = useNavigate();
 
     const createTrip = (e) => {
         e.preventDefault();
     
-        const newTrip = { content, title };
+        const newTrip = { title, startLocation, destination, tripDate };
         
         api.post("/api/trips/", newTrip)
             .then((res) => {
@@ -36,25 +37,42 @@ function PlanTrip({ addTrip }) {
 
     
     return (
-        <div className="">
-            <h2 className="">Plan a New Trip</h2>
+        <div className="plan-trip-container">
+            <h2>Plan a Trip</h2>
+            <p><em>Prepare yourself for a new adventure.</em></p>
             <form onSubmit={createTrip} className="">
-                <label className="block text-left">Trip Title:</label>
+                
                 <input
                     type="text"
-                    className=""
+                    placeholder="Trip Name"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
                 />
-                <label className="block text-left">Trip Details:</label>
-                <textarea
-                    className=""
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
+            
+                <input
+                    type="text"
+                    placeholder="Starting Location?"
+                    value={startLocation}
+                    onChange={(e) => setStartLocation(e.target.value)}
                     required
                 />
-                <button type="submit" className="">
+                
+                <input
+                    type="text"
+                    placeholder="Destination?"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    required
+                />
+                
+                <input
+                    type="date"
+                    value={tripDate}
+                    onChange={(e) => setTripDate(e.target.value)}
+                    required
+                />
+                <button type="submit" className="save-trip-button">
                     Save Trip
                 </button>
             </form>

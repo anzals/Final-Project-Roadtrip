@@ -1,0 +1,9 @@
+html, body, #root {
+    height: 100%;
+    padding: 0; /* I changed this  */
+}
+
+#root {
+    display: block;
+    width: 100%; /* I changed this  */
+}

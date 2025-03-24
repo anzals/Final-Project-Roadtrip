@@ -7,6 +7,8 @@
   margin: 15px;
   padding: 5px;
   border-radius: 15px;
+  min-width: 150px;
+  min-height: 220px;
  }
 
  .trip-title {
