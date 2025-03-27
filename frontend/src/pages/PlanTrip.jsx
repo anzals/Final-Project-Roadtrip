@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+//import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+import { useLoadScript, Autocomplete } from "@react-google-maps/api";
 import api from "../api";
 import Trip from "../components/Trip"
 import "../styles/PlanTrip.css"
+
+const libraries = ["places"];
 
 function PlanTrip({ addTrip }) {
     const [title, setTitle] = useState("");
@@ -10,6 +14,13 @@ function PlanTrip({ addTrip }) {
     const [destination, setDestination] = useState("");
     const [tripDate, setTripDate] = useState("");  
     const navigate = useNavigate();
+
+    const { isLoaded } = useLoadScript({
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+        libraries,
+    });
+
+    if (!isLoaded) return <div>Loading Google Maps...</div>;
 
     const createTrip = (e) => {
         e.preventDefault();
@@ -49,22 +60,42 @@ function PlanTrip({ addTrip }) {
                     onChange={(e) => setTitle(e.target.value)}
                     required
                 />
-            
-                <input
-                    type="text"
-                    placeholder="Starting Location?"
-                    value={startLocation}
-                    onChange={(e) => setStartLocation(e.target.value)}
-                    required
-                />
                 
-                <input
-                    type="text"
-                    placeholder="Destination?"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    required
-                />
+                <Autocomplete
+                    options={{
+                        componentRestrictions: { country: "gb" },
+                      }}
+                      onPlaceChanged={() =>
+                        setStartLocation(document.querySelector("#startLocation").value)
+                      }
+                >
+                    <input
+                        id="startLocation"
+                        type="text"
+                        placeholder="Starting Location?"
+                        value={startLocation}
+                        onChange={(e) => setStartLocation(e.target.value)}
+                        required
+                    />
+                </Autocomplete>
+                
+                <Autocomplete
+                    options={{
+                        componentRestrictions: { country: "gb" },
+                      }}
+                      onPlaceChanged={() =>
+                        setDestination(document.querySelector("#destination").value)
+                      }
+                >
+                    <input
+                        id="destination"
+                        type="text"
+                        placeholder="Destination?"
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                        required
+                    />
+                </Autocomplete>
                 
                 <input
                     type="date"
