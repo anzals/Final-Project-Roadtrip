@@ -44,7 +44,9 @@ function TripDetails() {
 
 
             <div className="buttons">
-                <button className="generate-route">Generate Route</button>
+                <button className="generate-route" onClick={() => navigate(`/route/${trip.id}`)}>
+                    Generate Route
+                </button>
                 <button className="back-button" onClick={() => navigate("/")}>
                     Return to Dashboard
                 </button>

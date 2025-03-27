@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import PlanTrip from "./pages/PlanTrip";
 import TripDetails from "./pages/TripDetails";
+import MapRoute from "./pages/MapRoute"; 
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import api from "./api";
@@ -57,6 +58,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TripDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/route/:id"
+          element={
+            <ProtectedRoute>
+              <MapRoute />
             </ProtectedRoute>
           }
         />
