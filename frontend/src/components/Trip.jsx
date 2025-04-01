@@ -15,11 +15,19 @@ function Trip({ trip, onDelete }) {
         })
         : "No date provided";
 
+    const handleDetailsClick = () => {
+        if (trip.has_route) {
+            navigate(`/route/${trip.id}`);
+        } else {
+            navigate(`/trip/${trip.id}`);
+        }
+    };
+
     return (
         <div className="trips">
             <p className="trip-title">{trip.title}</p>
             <p className="trip-date">{formattedTripDate}</p>
-            <button className="details-button" onClick={() => navigate(`/trip/${trip.id}`)}>
+            <button className="details-button" onClick={handleDetailsClick}>
                 See Details
             </button>
             <button className="delete-button" onClick={() => onDelete(trip.id)}>

@@ -12,6 +12,19 @@ class Trip(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Route(models.Model):
+    trip = models.OneToOneField(Trip, on_delete=models.CASCADE, primary_key=True, related_name="route")  # Same ID as trip if overwritten
+    startLocation = models.CharField(max_length=255)  
+    destination = models.CharField(max_length=255)  
+    distance = models.CharField(max_length=50)  
+    duration = models.CharField(max_length=50)  
+    routePath = models.TextField()  # JSON string for waypoints
+    created_at = models.DateTimeField(auto_now_add=True)  
+    updated_at = models.DateTimeField(auto_now=True)  
+
+    def __str__(self):
+        return f"Route for {self.trip.title} - {self.distance}, {self.duration}"
 
 class RoadtripUserManager(BaseUserManager):
     def create_user(self, email, password=None, first_name="", last_name="", **extra_fields):

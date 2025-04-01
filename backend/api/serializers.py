@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Trip
-from .models import RoadtripUser
+from .models import Trip, Route, RoadtripUser
 
 # Serializers act as a bridge, converting Django models (python objects) to JSON which APIs communicate with.
 class UserSerializer(serializers.ModelSerializer):
@@ -23,7 +22,18 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class TripSerializer(serializers.ModelSerializer):
+    has_route = serializers.SerializerMethodField()
+
     class Meta:
         model = Trip
-        fields = ["id", "title", "startLocation", "destination", "tripDate", "created_at", "author"]
+        fields = ["id", "title", "startLocation", "destination", "tripDate", "created_at", "author", "has_route"]
         extra_kwargs = {"author": {"read_only": True}} # Ensures author is set automatically
+    
+    def get_has_route(self, obj):
+        # Check if a route exists in the Route table with a matching trip_id.
+        return Route.objects.filter(trip_id=obj.id).exists()
+
+class RouteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Route
+        fields = ["trip", "startLocation", "destination", "distance", "duration", "routePath", "created_at", "updated_at"]
