@@ -29,7 +29,6 @@ function TripDetails() {
     
     
 
-    if (!trip) return <p>Loading trip details...</p>;
     if (!trip) return <p>Error loading trip. Please try again.</p>;
 
     if (loading) return <p>Loading trip details...</p>;

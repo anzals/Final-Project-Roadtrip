@@ -6,6 +6,8 @@ import Home from "./pages/Home";
 import PlanTrip from "./pages/PlanTrip";
 import TripDetails from "./pages/TripDetails";
 import MapRoute from "./pages/MapRoute"; 
+import AddPitstop from "./pages/AddPitstop";
+import UpdateRoute from "./pages/UpdateRoute";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import api from "./api";
@@ -66,6 +68,22 @@ function App() {
           element={
             <ProtectedRoute>
               <MapRoute />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/route/:id/add-pitstop"  
+          element={
+            <ProtectedRoute>
+              <AddPitstop />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/route/:id/update-route"  
+          element={
+            <ProtectedRoute>
+              <UpdateRoute />
             </ProtectedRoute>
           }
         />

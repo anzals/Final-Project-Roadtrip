@@ -1,25 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { GoogleMap, DirectionsRenderer, useLoadScript } from "@react-google-maps/api";
+import { useLoadScript } from "@react-google-maps/api";
 import api from "../api";
-
-// Refresh access token
-const refreshAccessToken = async () => {
-    try {
-        const refreshToken = localStorage.getItem("refresh_token");
-        if (!refreshToken) throw new Error("No refresh token found");
-
-        const response = await api.post("/api/token/refresh/", {
-            refresh: refreshToken,
-        });
-
-        localStorage.setItem("access_token", response.data.access);
-        return response.data.access;
-    } catch (error) {
-        console.error("Error refreshing access token:", error);
-        return null;
-    }
-};
+import Header from "../components/Header" 
+import MapDisplay from "../components/MapDisplay";
+import RouteDetails from "../components/RouteDetails";
 
 const libraries = ["places"];
 const containerStyle = {
@@ -33,7 +18,7 @@ function MapRoute() {
     const [directions, setDirections] = useState(null);
     const [distance, setDistance] = useState("");
     const [duration, setDuration] = useState("");
-    const [hasRoute, setHasRoute] = useState(false); // Track if route already exists
+    const [hasRoute, setHasRoute] = useState(false); 
 
     const navigate = useNavigate();
 
@@ -42,23 +27,23 @@ function MapRoute() {
         libraries,
     });
 
-   // Check if the route for this trip is already saved when the page loads
+    //Check if the route for this trip is already saved when the page loads
     useEffect(() => {
-        api.get(`/api/routes/${id}/`)
+        api.get(`/api/routes/?trip=${id}`)
             .then((res) => {
-                if (res.status === 200) {
-                    setHasRoute(true); // Route exists
+                // Check if the response contains any routes
+                if (res.data && res.data.length > 0) {
+                    setHasRoute(true);
                 } else {
-                    setHasRoute(false); // Route does not exist
+                    setHasRoute(false);
                 }
             })
             .catch((err) => {
                 console.error("Error checking route existence:", err);
-                setHasRoute(false); // Route does not exist
+                setHasRoute(false); 
             });
     }, [id]);
-    
-    
+
 
     // Fetch trip details
     useEffect(() => {
@@ -71,7 +56,7 @@ function MapRoute() {
             });
     }, [id]);
 
-    // Fetch directions for the trip
+    // Fetch directions for the trip and save automatically
     useEffect(() => {
         if (trip && isLoaded) {
             const directionsService = new window.google.maps.DirectionsService();
@@ -87,6 +72,34 @@ function MapRoute() {
                         const route = result.routes[0].legs[0];
                         setDistance(route.distance.text);
                         setDuration(route.duration.text);
+
+                        // Save or update the route automatically
+                        const newRoute = {
+                            trip: trip.id,
+                            startLocation: trip.startLocation,
+                            destination: trip.destination,
+                            distance: route.distance.text,
+                            duration: route.duration.text,
+                            routePath: JSON.stringify(result.routes[0].overview_polyline),
+                        };
+
+                        api.post("/api/routes/", newRoute, {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                            },
+                        })
+                        .then((res) => {
+                            if (res.status === 201 || res.status === 200) {
+                                alert("Route saved successfully!");
+                                setHasRoute(true);
+                            } else {
+                                alert("Failed to save route.");
+                            }
+                        })
+                        .catch((err) => {
+                            console.error("Error saving route:", err);
+                            alert("Error saving route.");
+                        });
                     } else {
                         console.error("Error calculating route:", status);
                     }
@@ -95,58 +108,39 @@ function MapRoute() {
         }
     }, [trip, isLoaded]);
 
-    // Save route to the database
-    const saveRoute = () => {
-        const newRoute = {
-            trip: trip.id,
-            startLocation: trip.startLocation,
-            destination: trip.destination,
-            distance,
-            duration,
-            routePath: JSON.stringify(directions.routes[0].overview_polyline),
-        };
 
-        console.log("Route Data:", newRoute);
+    // Navigation to the Add Pitstop page
+    const navigateToAddPitstop = () => {
+        if (trip && trip.id) {
+            navigate(`/route/${trip.id}/add-pitstop`);
+        } else {
+            alert("Trip ID not found!");
+        }
+    };
 
-        api.post("/api/routes/", newRoute)
-            .then((res) => {
-                if (res.status === 201 || res.status === 200) {
-                    alert("Route saved successfully!");
-                    setHasRoute(true); // Update state after saving
-                    navigate("/"); // Redirect to dashboard
-                } else {
-                    alert("Failed to save route.");
-                }
-            })
-            .catch((err) => {
-                console.error("Error saving route:", err.response ? err.response.data : err.message);
-                alert("Error saving route: " + (err.response ? JSON.stringify(err.response.data) : err.message));
-            });
+    // Go back to the dashboard
+    const goToDashboard = () => {
+        navigate("/");
     };
 
     if (!isLoaded) return <div>Loading map...</div>;
     if (!trip) return <div>Loading trip details...</div>;
 
     return (
-        <div>
-            <h2>From: {trip.startLocation} </h2>
-            <h2>To: {trip.destination}</h2>
-            <p>Distance: {distance}</p>
-            <p>Duration: {duration}</p>
-            <GoogleMap
-                mapContainerStyle={containerStyle}
-                zoom={7}
-                center={{ lat: 51.509865, lng: -0.118092 }} // Default to London
-            >
-                {directions && <DirectionsRenderer directions={directions} />}
-            </GoogleMap>
-            {!hasRoute && ( // Only show the button if the route doesn't exist
-                <button onClick={saveRoute}>
-                    Save Route
-                </button>
-            )}
+        <div className="map-route-page">
+            <Header />
+            <div>
+                <MapDisplay directions={directions} />
+                <RouteDetails trip={trip} distance={distance} duration={duration} />
+                {hasRoute && (
+                    <div>
+                        <button onClick={goToDashboard}>Back to Dashboard</button>
+                        <button onClick={navigateToAddPitstop}>Add Pitstops</button>
+                    </div>
+                )}
+            </div>
         </div>
-    );
-}
+        );
+    }
 
 export default MapRoute;

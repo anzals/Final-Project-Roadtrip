@@ -1,4 +1,3 @@
-import React from "react";
 import "../styles/Footer.css"; // Import footer styles
 import { FaInstagram, FaYoutube } from "react-icons/fa";
 

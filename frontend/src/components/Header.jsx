@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import "../styles/Header.css"; // Import header styles
 import { ACCESS_TOKEN } from "../constants";
+import { FaUserCircle } from "react-icons/fa"; // User icon
 
 const Header = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false); 
 
     useEffect(() => {
         const token = localStorage.getItem(ACCESS_TOKEN); 
@@ -18,6 +20,10 @@ const Header = () => {
         navigate("/login");
     };
 
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
+    };
+
     return (
         <header className="header">
             <div className="logo">
@@ -25,9 +31,20 @@ const Header = () => {
             </div>
             <h1>Road Trip Mate</h1>
             {isLoggedIn && (
-                <button className="logout-btn" onClick={handleLogout}>
-                    Logout
-                </button>
+                <div 
+                    className="user-icon-container" 
+                    onMouseEnter={toggleDropdown} 
+                    onMouseLeave={toggleDropdown}
+                >
+                    <FaUserCircle className="user-icon" size={30} />
+                    {dropdownOpen && (
+                        <div className="dropdown">
+                            <button className="dropdown-item" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    )}
+                </div>
             )}
             <div className="header-line" />
         </header>

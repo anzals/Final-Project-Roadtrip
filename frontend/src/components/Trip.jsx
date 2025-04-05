@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import "../styles/Trip.css"
@@ -16,12 +15,15 @@ function Trip({ trip, onDelete }) {
         : "No date provided";
 
     const handleDetailsClick = () => {
-        if (trip.has_route) {
+        if (trip.has_updated_route) {
+            navigate(`/route/${trip.id}/update-route`);
+        } else if (trip.has_route) {
             navigate(`/route/${trip.id}`);
         } else {
             navigate(`/trip/${trip.id}`);
         }
     };
+        
 
     return (
         <div className="trips">

@@ -19,7 +19,8 @@ class Route(models.Model):
     destination = models.CharField(max_length=255)  
     distance = models.CharField(max_length=50)  
     duration = models.CharField(max_length=50)  
-    routePath = models.TextField()  # JSON string for waypoints
+    routePath = models.JSONField(default=list)  # better as a JSONField for waypoints allows for better performance
+    pitstops = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)  
     updated_at = models.DateTimeField(auto_now=True)  
 

@@ -23,17 +23,25 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TripSerializer(serializers.ModelSerializer):
     has_route = serializers.SerializerMethodField()
+    has_updated_route = serializers.SerializerMethodField()
 
     class Meta:
         model = Trip
-        fields = ["id", "title", "startLocation", "destination", "tripDate", "created_at", "author", "has_route"]
+        fields = ["id", "title", "startLocation", "destination", "tripDate", "created_at", "author", "has_route", "has_updated_route"]
         extra_kwargs = {"author": {"read_only": True}} # Ensures author is set automatically
     
     def get_has_route(self, obj):
         # Check if a route exists in the Route table with a matching trip_id.
         return Route.objects.filter(trip_id=obj.id).exists()
+    
+    def get_has_updated_route(self, obj):
+    # Check if a route exists and the 'updated_at' field indicates an update
+        route = Route.objects.filter(trip_id=obj.id).first()
+        return bool(route and route.updated_at)
+
 
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = ["trip", "startLocation", "destination", "distance", "duration", "routePath", "created_at", "updated_at"]
+        fields = ["trip", "startLocation", "destination", "distance", "duration", "routePath", "pitstops", "created_at", "updated_at"]
+        extra_kwargs = {"routePath": {"required": False}}  # Allow the pitstop list to be empty

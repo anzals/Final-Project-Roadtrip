@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TripDetailView, RouteListCreate, RouteDetailView
+from .views import TripDetailView, RouteListCreate, RouteDetailView, AddPitstopView, UpdateRouteView
 from . import views
 
 # defines api endpoints
@@ -10,4 +10,6 @@ urlpatterns = [
     path("trips/delete/<int:pk>/", views.TripDelete.as_view(), name="delete-trip"),
     path("routes/", RouteListCreate.as_view(), name="route-list"),
     path("routes/<int:pk>/", RouteDetailView.as_view(), name="route-detail"),
+    path("routes/<int:trip_id>/add-pitstop/", AddPitstopView.as_view(), name="add-pitstop"),
+    path("routes/<int:trip_id>/update/", UpdateRouteView.as_view(), name="update-route"),
 ]

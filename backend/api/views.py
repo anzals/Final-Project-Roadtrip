@@ -1,12 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework import generics, status, serializers
 from .serializers import UserSerializer, TripSerializer, RouteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Trip, RoadtripUser, Route
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView
 from rest_framework.response import Response
-
+from rest_framework.views import APIView
+import json
 
 class TripListCreate(generics.ListCreateAPIView):
     serializer_class = TripSerializer
@@ -75,3 +76,62 @@ class RouteDetailView(generics.RetrieveAPIView):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
     permission_classes = [IsAuthenticated]
+
+class AddPitstopView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, trip_id):
+        try:
+            # Fetch the route object for the given trip ID or return 404 if not found
+            route = get_object_or_404(Route, trip_id=trip_id)
+
+            pitstop = request.data.get("pitstop")
+            if not pitstop:
+                return Response({"error": "Pitstop is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Ensure pitstops is a list before appending
+            if not isinstance(route.pitstops, list):
+                try:
+                    # Convert the JSONB string to a Python list if necessary
+                    route.pitstops = json.loads(route.pitstops) if route.pitstops else []
+                except (TypeError, json.JSONDecodeError):
+                    # If parsing fails, initialize with an empty list
+                    route.pitstops = []
+
+            # Append the new pitstop only if it's not already in the list
+            if pitstop not in route.pitstops:
+                route.pitstops.append(pitstop)
+
+            # Save the updated pitstops as a list, not as a JSON string
+            route.pitstops = route.pitstops
+            route.save()
+
+            return Response({"message": "Pitstop added successfully"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Error adding pitstop: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class UpdateRouteView(generics.UpdateAPIView):
+    queryset = Route.objects.all()
+    serializer_class = RouteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, trip_id):
+        try:
+            route = get_object_or_404(Route, trip_id=trip_id)
+
+            # Update the route details
+            route.distance = request.data.get("distance", route.distance)
+            route.duration = request.data.get("duration", route.duration)
+            route.routePath = request.data.get("routePath", route.routePath)
+            route.pitstops = request.data.get("pitstops", route.pitstops)
+            route.save()
+
+            return Response({"message": "Route updated successfully"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Error updating route: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
