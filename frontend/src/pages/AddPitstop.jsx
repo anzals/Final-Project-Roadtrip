@@ -163,7 +163,12 @@ function AddPitstop() {
                 <h2>Add Pitstops</h2>
                 <div>
                     <label>Search: </label>
-                    <AutocompleteInput />
+                    <AutocompleteInput 
+                    id="pitstop"
+                    placeholder="Add a Pitstop"
+                    value={pitstop}
+                    onChange={(value) => setPitstop(value)}/>
+
                     <button onClick={addPitstop}>+</button>
                 </div>
                 <div>
