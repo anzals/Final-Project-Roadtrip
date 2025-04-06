@@ -57,35 +57,43 @@ function UpdateRoute() {
     }, [id]);
 
 
-    // Update route calculation with pitstops
-    useEffect(() => {
+    // Function to calculate the route and update distance and duration
+    const calculateRoute = () => {
         if (trip && isLoaded) {
             const waypoints = pitstops.map((stop) => ({
                 location: stop,
                 stopover: true,
             }));
-            
+
             const directionsService = new window.google.maps.DirectionsService();
             directionsService.route(
                 {
                     origin: trip.startLocation,
                     destination: trip.destination,
                     waypoints: waypoints,
-                    optimizeWaypoints: true, // add pitstops so the route is optimised
+                    optimizeWaypoints: true,
                     travelMode: window.google.maps.TravelMode.DRIVING,
                 },
                 (result, status) => {
                     if (status === "OK") {
                         setDirections(result);
-                        const route = result.routes[0].legs[0];
-                        setDistance(route.distance.text);
-                        setDuration(route.duration.text);
+                        const legs = result.routes[0].legs;
+                        // Calculate total distance and duration
+                        const totalDistance = legs.reduce((acc, leg) => acc + leg.distance.value, 0);
+                        const totalDuration = legs.reduce((acc, leg) => acc + leg.duration.value, 0);
+                        setDistance((totalDistance / 1000).toFixed(2) + " km");
+                        setDuration((totalDuration / 60).toFixed(0) + " mins");
                     } else {
                         console.error("Error calculating route:", status);
                     }
                 }
             );
         }
+    };
+
+    // Trigger route calculation when pitstops change
+    useEffect(() => {
+        calculateRoute();
     }, [trip, pitstops, isLoaded]);
 
 
