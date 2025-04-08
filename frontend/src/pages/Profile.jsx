@@ -4,7 +4,7 @@ import api from '../api';
 import Header from '../components/Header';
 
 function Profile() {
-    const [user, setUser] = useState({ name: '', email: '', profilePicture: '' });
+    const [user, setUser] = useState({ firstName: '', lastName: '', email: '' });
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -14,7 +14,12 @@ function Profile() {
                 const response = await api.get('/api/user/profile/', {
                     headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` }
                 });
-                setUser(response.data);
+                const { first_name, last_name, email } = response.data;
+                setUser({
+                    firstName: first_name,
+                    lastName: last_name,
+                    email: email,
+                });
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching user data:", error);
@@ -37,14 +42,21 @@ function Profile() {
     return (
         <div className="profile-page">
             <Header />
-            <h2>Account Details</h2>
-            <div className="profile-details">
-                <img src={user.profilePicture} alt="Profile" className="profile-picture" />
-                <p><strong>Name:</strong> {user.name}</p>
-                <p><strong>Email:</strong> {user.email}</p>
-                <div className="profile-buttons">
-                    <button onClick={handleEditProfile}>Edit Profile</button>
-                    <button onClick={handleChangePassword}>Change Password</button>
+            <div className="profile-container">
+                <h2>User Profile</h2>
+                <div className="profile-card">
+                    <img src={user.profilePicture} alt="Profile" className="profile-picture" />
+                    <div className="profile-info">
+                        <label>First Name</label>
+                        <input type="firstName" value={user.firstName} disabled />
+                        <label>Last Name</label>
+                        <input type="lastName" value={user.lastName} disabled />
+                        <label>Email</label>
+                        <input type="email" value={user.email} disabled />
+                        <label>Password</label>
+                        <input type="password" value="********" disabled />
+                    </div>
+                    <button className="edit-button" onClick={handleEditProfile}>Edit</button>
                 </div>
             </div>
         </div>

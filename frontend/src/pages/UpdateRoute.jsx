@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useLoadScript } from "@react-google-maps/api";
 import api from "../api";
 import MapDisplay from "../components/MapDisplay";
-import RouteDetails from "../components/RouteDetails";
 
 const libraries = ["places"];
 const containerStyle = {
@@ -161,39 +160,6 @@ function UpdateRoute() {
     };
 
     
-    // Save the updated route
-    const saveUpdatedRoute = async () => {
-        try {
-            if (!directions) {
-                alert("Route is not calculated yet.");
-                return;
-            }
-    
-            const updatedRoute = {
-                trip: trip.id,
-                startLocation: trip.startLocation,
-                destination: trip.destination,
-                distance,
-                duration,
-                routePath: JSON.stringify(directions.routes[0].overview_polyline), // Save the new route path
-                pitstops: pitstops,  // Save the updated order of pitstops
-            };
-    
-            const response = await api.patch(`/api/routes/${id}/update/`, updatedRoute, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
-            });
-    
-            if (response.status === 200) {
-                alert("Updated route saved!");
-                setPitstops(pitstops);
-            } else {
-                alert("Failed to save updated route.");
-            }
-        } catch (err) {
-            console.error("Error saving updated route:", err);
-            alert("Failed to save updated route.");
-        }
-    };
     
 
     if (!isLoaded) return <div>Loading map...</div>;
@@ -213,9 +179,7 @@ function UpdateRoute() {
 
             <MapDisplay directions={directions} />
             <div>
-                <button onClick={saveUpdatedRoute}>Save Updated Route</button>
                 <button onClick={editPitstops}>Edit Pitstops</button>
-                <button onClick={() => navigate(`/route/${id}/reorder-pitstops`)}>Reorder Pitstops</button>
                 <button onClick={() => navigate(`/route/${id}/petrol-calculator`, { state: { distance } })}>
                     Estimate Petrol Cost
                 </button>

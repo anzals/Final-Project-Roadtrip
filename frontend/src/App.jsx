@@ -8,7 +8,6 @@ import TripDetails from "./pages/TripDetails";
 import MapRoute from "./pages/MapRoute"; 
 import AddPitstop from "./pages/AddPitstop";
 import UpdateRoute from "./pages/UpdateRoute";
-import ReorderPitstops from "./pages/ReorderPitstops"; 
 import PetrolCalculator from "./pages/PetrolCalculator";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -89,14 +88,6 @@ function App() {
               <UpdateRoute />
             </ProtectedRoute>
           }
-        />
-        <Route 
-          path="/route/:id/reorder-pitstops" 
-          element={
-            <ProtectedRoute>
-              <ReorderPitstops />
-            </ProtectedRoute>
-          } 
         />
         <Route 
           path="/route/:id/petrol-calculator" 

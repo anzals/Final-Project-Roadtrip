@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {useLoadScript, Autocomplete } from "@react-google-maps/api";
+import {useLoadScript } from "@react-google-maps/api";
 import api from "../api";
 import Header from "../components/Header";
 import MapDisplay from "../components/MapDisplay";
 import AutocompleteInput from "../components/AutocompleteInput";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+
 
 const libraries = ["places"];
 const containerStyle = {
@@ -130,6 +132,37 @@ function AddPitstop() {
             alert("Error removing pitstop.");
         }
     };
+
+    // Handle drag and drop
+    const handleDragEnd = (result) => {
+        if (!result.destination) return;
+
+        const updatedPitstops = Array.from(selectedPitstops);
+        const [movedItem] = updatedPitstops.splice(result.source.index, 1);
+        updatedPitstops.splice(result.destination.index, 0, movedItem);
+
+        setSelectedPitstops(updatedPitstops);
+    };
+
+    // Save reordered pitstops
+    const saveReorderedPitstops = async () => {
+        try {
+            const response = await api.patch(`/api/routes/${id}/update/`, {
+                pitstops: pitstops,  // Save the newly reordered pitstops
+            }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
+            });
+    
+            if (response.status === 200) {
+                alert("Pitstops reordered successfully!");
+                navigate(`/route/${id}/update-route`, { state: { reorderedPitstops: pitstops } });
+            } else {
+                alert("Failed to save reordered pitstops.");
+            }
+        } catch (error) {
+            console.error("Error saving reordered pitstops:", error);
+        }
+    };
     
 
     // Update route with pitstops
@@ -173,11 +206,24 @@ function AddPitstop() {
                 </div>
                 <div>
                     <h3>Selected Pitstops:</h3>
-                    {selectedPitstops.map((ps, index) => (
-                        <div key={index} className="pitstop">
-                            {ps} <button onClick={() => removePitstop(ps)}>x</button>
-                        </div>
-                    ))}
+                    <DragDropContext onDragEnd={handleDragEnd}>
+                        <Droppable droppableId="pitstops">
+                            {(provided) => (
+                                <ul {...provided.droppableProps} ref={provided.innerRef}>
+                                    {selectedPitstops.map((ps, index) => (
+                                        <Draggable key={ps} draggableId={ps} index={index}>
+                                            {(provided) => (
+                                                <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                    {ps} <button onClick={() => removePitstop(ps)}>x</button>
+                                                </li>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                </ul>
+                            )}
+                        </Droppable>
+                    </DragDropContext>
                 </div>
                 <button onClick={updateRoute}>Update Route</button>
             </div>
