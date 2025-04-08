@@ -27,7 +27,6 @@ function TripDetails() {
             });
     }, [id]);
     
-    
 
     if (!trip) return <p>Error loading trip. Please try again.</p>;
 

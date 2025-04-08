@@ -77,9 +77,15 @@ function PlanTrip({ addTrip }) {
                 <input
                     type="date"
                     value={tripDate}
+                    min={new Date().toISOString().split("T")[0]}  // Restrict to today and future
+                    onFocus={(e) => (e.target.min = new Date().toISOString().split("T")[0])} 
                     onChange={(e) => setTripDate(e.target.value)}
                     required
+                    title="Select a future date"
                 />
+
+
+
                 <button type="submit" className="save-trip-button">
                     Save Trip
                 </button>

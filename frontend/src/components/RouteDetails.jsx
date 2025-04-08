@@ -6,8 +6,8 @@ function RouteDetails({ trip, distance, duration }) {
             <h2>Route for: {trip.title}</h2>
             <p>From: {trip.startLocation}</p>
             <p>To: {trip.destination}</p>
-            <p>Distance: {distance}</p>
-            <p>Duration: {duration}</p>
+            <p>Distance: {distance} km</p>
+            <p>Duration: {duration} mins</p>
         </div>
     );
 }

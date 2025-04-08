@@ -8,6 +8,29 @@ import Footer from "../components/Footer"
 import "../styles/Home.css"
 
 function Home({ trips, getTrips }) {
+    const [firstName, setFirstName] = useState("");
+
+    useEffect(() => {
+        const storedName = localStorage.getItem("firstName");
+        if (storedName) {
+            setFirstName(storedName);
+        } else {
+            const fetchUserInfo = async () => {
+                try {
+                    const response = await api.get("/api/user/", {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                        },
+                    });
+                    setFirstName(response.data.first_name);
+                    localStorage.setItem("firstName", response.data.first_name); 
+                } catch (err) {
+                    console.error("Error fetching user data", err);
+                }
+            };
+            fetchUserInfo();
+        }
+    }, []);
 
     useEffect(() => {
         getTrips();
@@ -30,7 +53,7 @@ function Home({ trips, getTrips }) {
             <Header />
             <div className="home-content">
                 <div className="title-container">
-                        <span className="introduction-text">Welcome back, Jane!</span>
+                        <span className="introduction-text">Welcome back, {firstName}!</span>
                         <p className="adventure-tag">Ready for your next adventure?</p>
                         <Link to="/plan-trip">
                         <button>

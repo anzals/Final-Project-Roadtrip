@@ -19,6 +19,14 @@ function MapDisplay({ directions, center = { lat: 51.509865, lng: -0.118092 }, z
             mapContainerStyle={containerStyle || defaultContainerStyle} 
             zoom={zoom} 
             center={center}
+            options={{
+                mapTypeControl: false,      // Disables map/satellite toggle
+                streetViewControl: false,   // Disables street view pegman
+                fullscreenControl: false,   // Disables fullscreen button
+                zoomControl: false,         // Disables zoom buttons 
+                scaleControl: false,        // Disables scale bar
+                rotateControl: false,       // Disables map rotation control
+            }}
         >
             {directions && <DirectionsRenderer directions={directions} />}
         </GoogleMap>

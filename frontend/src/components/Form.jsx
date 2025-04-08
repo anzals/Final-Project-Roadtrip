@@ -22,29 +22,45 @@ function Form({ route, method }) {
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
-
+    
         const userData = { email, password };
-
+    
         if (method === "register") {  
             userData.first_name = firstName;
             userData.last_name = lastName;
         }
-
+    
         try {
             const res = await api.post(route, userData);
+    
             if (method === "login") {
+                // Store tokens in local storage
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+    
+                // Fetch user profile using the access token
+                const profileRes = await api.get("/api/user/profile/", {
+                    headers: {
+                        Authorization: `Bearer ${res.data.access}`,
+                    },
+                });
+    
+                // Save user's first name in local storage
+                localStorage.setItem("firstName", profileRes.data.first_name);
+    
+                // Redirect to the home page
                 navigate("/");
             } else {
                 navigate("/login");
             }
         } catch (error) {
-            alert(error);
+            alert(`Error: ${error.response?.data?.detail || error.message}`);
         } finally {
             setLoading(false);
         }
     };
+    
+    
 
     return (
         <div className="form-wrapper">

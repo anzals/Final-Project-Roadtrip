@@ -38,6 +38,18 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]  # Anyone can register a new user
 
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+        }, status=status.HTTP_200_OK)
+
 class TripDetailView(RetrieveAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
