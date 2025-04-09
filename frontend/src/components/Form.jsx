@@ -12,6 +12,7 @@ function Form({ route, method }) {
     const [firstName, setFirstName] = useState(""); 
     const [lastName, setLastName] = useState("");   
     const [loading, setLoading] = useState(false);
+    const [formError, setFormError] = useState('');
     const navigate = useNavigate();
 
     const name = method === "login" ? "Login" : "Register";
@@ -22,10 +23,37 @@ function Form({ route, method }) {
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
+
+        setFormError("");
     
         const userData = { email, password };
+
+        if (method === "register" && (!firstName || !lastName || !email || !password)) {
+            setFormError("All fields are required.");
+            setLoading(false);
+            return;
+        }    
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            setFormError("Please enter a valid email address.");
+            return;
+        }
+
+        if (password.length < 8) {
+            setFormError("Password must be at least 8 characters long.");
+            return;
+        }
+    
     
         if (method === "register") {  
+
+            if (method === "register" && password.length < 8) {
+                setFormError("Password must be at least 8 characters long.");
+                setLoading(false);
+                return;
+            }
+            
             userData.first_name = firstName;
             userData.last_name = lastName;
         }
@@ -54,7 +82,15 @@ function Form({ route, method }) {
                 navigate("/login");
             }
         } catch (error) {
-            alert(`Error: ${error.response?.data?.detail || error.message}`);
+            const serverMessage = error.response?.data?.detail;
+
+            if (method === "login" && serverMessage) {
+                setFormError("Invalid email or password.");
+            } else if (method === "register" && serverMessage?.includes("already exists")) {
+                setFormError("An account with this email already exists.");
+            } else {
+                setFormError("Something went wrong. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
@@ -75,6 +111,7 @@ function Form({ route, method }) {
                 </div>
                 <div className="form-content-container">
                     <h1 className="form-title">{name}</h1>
+                    {formError && <p className="form-error">{formError}</p>}
                     <form onSubmit={handleSubmit} className={method === "register" ? "register-form" : "login-form"}>
                         {method === "register" && (  
                             <div className="name-inputs"> 

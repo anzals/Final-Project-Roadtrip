@@ -1,6 +1,9 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Trip, Route, RoadtripUser
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.auth import authenticate
+
 
 # Serializers act as a bridge, converting Django models (python objects) to JSON which APIs communicate with.
 class UserSerializer(serializers.ModelSerializer):
@@ -45,3 +48,16 @@ class RouteSerializer(serializers.ModelSerializer):
         model = Route
         fields = ["trip", "startLocation", "destination", "distance", "duration", "routePath", "pitstops", "created_at", "updated_at"]
         extra_kwargs = {"routePath": {"required": False}}  # Allow the pitstop list to be empty
+
+class LoginSerializerWithFeedback(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        try:
+            RoadtripUser.objects.get(email=attrs['email'])
+        except RoadtripUser.DoesNotExist:
+            raise AuthenticationFailed("This email is not registered.")
+
+        user = authenticate(email=attrs['email'], password=attrs['password'])
+        if not user:
+            raise AuthenticationFailed("Incorrect password.")
+
+        return super().validate(attrs)

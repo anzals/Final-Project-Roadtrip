@@ -10,6 +10,7 @@ function Profile() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
@@ -108,6 +109,25 @@ function Profile() {
         }
     };
     
+    const handleDeleteAccount = async () => {
+        try {
+            const response = await api.delete('/api/user/delete/', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("access_token")}`
+                }
+            });
+
+            if (response.status === 204) {
+                localStorage.clear();
+                navigate("/login");
+            } else {
+                setMessage("Failed to delete account.");
+            }
+        } catch (error) {
+            console.error("Error deleting account:", error);
+            setMessage("Error deleting account.");
+        }
+    };
 
     if (loading) return <div>Loading profile...</div>;
 
@@ -173,6 +193,23 @@ function Profile() {
                     </button>
                     {message && <p className="message">{message}</p>}
                 </div>
+
+                <div className="delete-account-section">
+                    <button
+                        className="delete-button"
+                        onClick={() => setShowDeleteConfirm(true)}
+                    >
+                        Delete Account
+                    </button>
+                </div>
+
+                {showDeleteConfirm && (
+                    <div className="delete-popup">
+                        <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                        <button onClick={handleDeleteAccount}>Yes, delete my account</button>
+                        <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+                    </div>
+                )}
             </div>
         </div>
     );

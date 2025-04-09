@@ -127,6 +127,18 @@
   background-color: #1a2b3c;
 }
 
+.form-error {
+  color: #c0392b;
+  font-size: 14px;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.form-input.invalid {
+  border-color: #c0392b;
+  background-color: #ffe6e6;
+}
+
 @media (max-width: 1024px) {
   .form-grid {
     width: 90%;

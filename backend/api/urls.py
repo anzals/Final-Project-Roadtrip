@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TripDetailView, RouteListCreate, RouteDetailView, AddPitstopView, UpdateRouteView, UserProfileView, ChangePasswordView
+from .views import TripDetailView, RouteListCreate, RouteDetailView, AddPitstopView, UpdateRouteView, UserProfileView, ChangePasswordView, DeleteAccountView
 from . import views
 
 # defines api endpoints
@@ -14,4 +14,5 @@ urlpatterns = [
     path("routes/<int:trip_id>/update/", UpdateRouteView.as_view(), name="update-route"),
     path("user/profile/", UserProfileView.as_view(), name="user-profile"),
     path("user/change-password/", ChangePasswordView.as_view(), name="change-password"),
+    path("user/delete/", DeleteAccountView.as_view(), name="delete-account"),
 ]

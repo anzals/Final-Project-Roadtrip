@@ -138,6 +138,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWS_CREDENTIALS = True
 
-# Send email to console during development
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@roadtripplanner.com'
+# Send email using gmail SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'roadtripwebapp@gmail.com'
+EMAIL_HOST_PASSWORD = 'ypnc mtvk hvdb arzk'
+EMAIL_USE_TLS = True 
+EMAIL_USE_SSL = False 
+DEFAULT_FROM_EMAIL = 'noreply@roadtripmate.com'
+DEFAULT_FROM_EMAIL = 'Roadtrip Planner <roadtripwebapp@gmail.com>'

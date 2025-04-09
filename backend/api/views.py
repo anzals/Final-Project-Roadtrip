@@ -6,6 +6,8 @@ from .models import Trip, RoadtripUser, Route
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import LoginSerializerWithFeedback
 import json
 from django.core.mail import send_mail
 
@@ -43,8 +45,17 @@ class CreateUserView(generics.CreateAPIView):
         
         # Send welcome email
         send_mail(
-            subject="Welcome to Roadtrip Planner!",
-            message=f"Hi {user.first_name}, thanks for signing up! 🚗🗺️",
+            subject="Welcome to Roadtrip Mate!",
+            message=f"""
+            Hi {user.first_name}, 
+
+            Welcome to **Roadtrip Mate** — your new travel buddy for planning unforgettable road trips across the UK!
+
+            Please verify your email to activate your account:  https://to be made
+
+
+            Happy travels,
+            – The Roadtrip Mate Team 🚐💨""",
             from_email=None, 
             recipient_list=[user.email],
             fail_silently=False,
@@ -88,6 +99,15 @@ class ChangePasswordView(APIView):
         user.set_password(new_password)
         user.save()
         return Response({"message": "Password updated successfully!"}, status=status.HTTP_200_OK)
+    
+class DeleteAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class TripDetailView(RetrieveAPIView):
     queryset = Trip.objects.all()
@@ -186,3 +206,6 @@ class UpdateRouteView(generics.UpdateAPIView):
         except Exception as e:
             print(f"Error updating route: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class LoginViewWithFeedback(TokenObtainPairView):
+    serializer_class = LoginSerializerWithFeedback
