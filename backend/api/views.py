@@ -1,5 +1,4 @@
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.models import User
 from rest_framework import generics, status, serializers
 from .serializers import UserSerializer, TripSerializer, RouteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -8,6 +7,7 @@ from rest_framework.generics import RetrieveAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import json
+from django.core.mail import send_mail
 
 class TripListCreate(generics.ListCreateAPIView):
     serializer_class = TripSerializer
@@ -38,6 +38,19 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]  # Anyone can register a new user
 
+    def perform_create(self, serializer):
+        user = serializer.save()
+        
+        # Send welcome email
+        send_mail(
+            subject="Welcome to Roadtrip Planner!",
+            message=f"Hi {user.first_name}, thanks for signing up! 🚗🗺️",
+            from_email=None, 
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
+
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -49,6 +62,32 @@ class UserProfileView(APIView):
             "last_name": user.last_name,
             "email": user.email,
         }, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)  # Partial update
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+
+        if not user.check_password(current_password):
+            return Response({"error": "Current password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(new_password) < 8:
+            return Response({"error": "New password must be at least 8 characters long."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        return Response({"message": "Password updated successfully!"}, status=status.HTTP_200_OK)
 
 class TripDetailView(RetrieveAPIView):
     queryset = Trip.objects.all()

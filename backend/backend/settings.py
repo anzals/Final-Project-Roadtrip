@@ -137,3 +137,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWS_CREDENTIALS = True
+
+# Send email to console during development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@roadtripplanner.com'

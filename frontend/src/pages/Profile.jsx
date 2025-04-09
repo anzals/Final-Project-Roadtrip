@@ -6,6 +6,11 @@ import Header from '../components/Header';
 function Profile() {
     const [user, setUser] = useState({ firstName: '', lastName: '', email: '' });
     const [loading, setLoading] = useState(true);
+    const [editMode, setEditMode] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,13 +34,80 @@ function Profile() {
         fetchUserData();
     }, []);
 
-    const handleEditProfile = () => {
-        navigate('/profile/edit');
+    const handleEditToggle = () => {
+        setEditMode(!editMode);
     };
 
-    const handleChangePassword = () => {
-        navigate('/profile/change-password');
+    const handleSaveProfile = async () => {
+        try {
+            const response = await api.patch('/api/user/profile/', {
+                first_name: user.firstName,
+                last_name: user.lastName,
+                email: user.email,
+            }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` }
+            });
+    
+            if (response.status === 200) {
+                setMessage("Profile updated successfully!");
+                setEditMode(false);
+            } else {
+                setMessage("Failed to update profile.");
+            }
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            setMessage("Error updating profile.");
+        }
     };
+       
+
+
+    const handleKeyPress = (event) => {
+        if (event.key === "Enter") {
+            handleSaveProfile();
+        } else if (event.key === "Escape") {
+            setEditMode(false);
+        }
+    };
+
+    const handleSavePassword = async () => {
+        if (!currentPassword) {
+            setMessage("Please enter your current password.");
+            return;
+        }
+    
+        if (newPassword !== confirmPassword) {
+            setMessage("Passwords do not match!");
+            return;
+        }
+    
+        if (newPassword.length < 8) {
+            setMessage("New password must be at least 8 characters long.");
+            return;
+        }
+    
+        try {
+            const response = await api.patch('/api/user/change-password/', {
+                current_password: currentPassword,
+                new_password: newPassword,
+            }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` }
+            });
+    
+            if (response.status === 200) {
+                setMessage("Password updated successfully!");
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+            } else {
+                setMessage("Failed to update password.");
+            }
+        } catch (error) {
+            console.error("Error changing password:", error);
+            setMessage("Error updating password. Please check your current password.");
+        }
+    };
+    
 
     if (loading) return <div>Loading profile...</div>;
 
@@ -45,18 +117,61 @@ function Profile() {
             <div className="profile-container">
                 <h2>User Profile</h2>
                 <div className="profile-card">
-                    <img src={user.profilePicture} alt="Profile" className="profile-picture" />
+                    <button className="edit-button" onClick={handleEditToggle}>
+                        {editMode ? "Cancel" : "Edit"}
+                    </button>
                     <div className="profile-info">
                         <label>First Name</label>
-                        <input type="firstName" value={user.firstName} disabled />
+                        <input
+                            type="text"
+                            value={user.firstName}
+                            disabled={!editMode}
+                            onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+                            onKeyDown={handleKeyPress}
+                        />
                         <label>Last Name</label>
-                        <input type="lastName" value={user.lastName} disabled />
+                        <input
+                            type="text"
+                            value={user.lastName}
+                            disabled={!editMode}
+                            onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+                            onKeyDown={handleKeyPress}
+                        />
                         <label>Email</label>
-                        <input type="email" value={user.email} disabled />
-                        <label>Password</label>
-                        <input type="password" value="********" disabled />
+                        <input
+                            type="email"
+                            value={user.email}
+                            disabled={!editMode}
+                            onChange={(e) => setUser({ ...user, email: e.target.value })}
+                            onKeyDown={handleKeyPress}
+                        />
                     </div>
-                    <button className="edit-button" onClick={handleEditProfile}>Edit</button>
+                </div>
+
+                <div className="password-change-card">
+                    <h3>Change Password</h3>
+                    <label>Current Password</label>
+                    <input
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                    />
+                    <label>New Password</label>
+                    <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                    <label>Confirm New Password</label>
+                    <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <button className="save-button" onClick={handleSavePassword}>
+                        Save
+                    </button>
+                    {message && <p className="message">{message}</p>}
                 </div>
             </div>
         </div>
