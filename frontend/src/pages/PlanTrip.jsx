@@ -12,6 +12,8 @@ function PlanTrip({ addTrip }) {
     const [startLocation, setStartLocation] = useState("");
     const [destination, setDestination] = useState("");
     const [tripDate, setTripDate] = useState("");  
+    const [startPlaceDetails, setStartPlaceDetails] = useState(null);
+    const [destinationPlaceDetails, setDestinationPlaceDetails] = useState(null);
     const navigate = useNavigate();
 
     const { isLoaded } = useLoadScript({
@@ -24,7 +26,17 @@ function PlanTrip({ addTrip }) {
     const createTrip = (e) => {
         e.preventDefault();
     
-        const newTrip = { title, startLocation, destination, tripDate };
+        if (!startPlaceDetails || !destinationPlaceDetails) {
+            alert("Please select valid locations from the suggestions.");
+            return;
+        }
+
+        const newTrip = {
+            title,
+            startLocation: startPlaceDetails.formatted_address,
+            destination: destinationPlaceDetails.formatted_address,
+            tripDate,
+        };
         
         api.post("/api/trips/", newTrip)
             .then((res) => {
@@ -65,6 +77,7 @@ function PlanTrip({ addTrip }) {
                     placeholder="Starting Location?"
                     value={startLocation}
                     onChange={setStartLocation}
+                    setPlaceDetails={setStartPlaceDetails}
                 />
 
                 <AutocompleteInput
@@ -72,6 +85,7 @@ function PlanTrip({ addTrip }) {
                     placeholder="Destination?"
                     value={destination}
                     onChange={setDestination}
+                    setPlaceDetails={setDestinationPlaceDetails}
                 />
                 
                 <input

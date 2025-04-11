@@ -1,6 +1,6 @@
 .trips {
   display: grid;
-  grid-template-rows: 1.5fr 1fr 1fr; 
+  grid-template-rows: 1.5fr 1fr 1fr 1fr; 
   grid-template-columns: 1fr 2fr 1fr;
   background-color: #5baeae;
   border: 5px solid #99cccc;
@@ -29,6 +29,30 @@
   display: flex;
   justify-content: center;
   font-size: 0.8rem;
+}
+
+.trip-route {
+  grid-column: span 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #FDFBF5;
+  font-size: 0.9rem;
+  margin: 5px 0;
+}
+
+.route-arrow {
+  margin: 0 5px;
+  font-weight: bold;
+}
+
+.route-start,
+.route-end {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40%; /* Prevents overflow */
 }
 
 .details-button {

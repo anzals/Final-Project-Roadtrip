@@ -3,11 +3,11 @@ function RouteDetails({ trip, distance, duration }) {
 
     return (
         <div className="route-details">
-            <h2>Route for: {trip.title}</h2>
+            <h2>Road Trip to {trip.destination?.split(",")[0]}</h2>
             <p>From: {trip.startLocation}</p>
             <p>To: {trip.destination}</p>
-            <p>Distance: {distance} km</p>
-            <p>Duration: {duration} mins</p>
+            <p>Distance: {distance} </p>
+            <p>Duration: {duration} </p>
         </div>
     );
 }

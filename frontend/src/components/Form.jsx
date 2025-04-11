@@ -39,11 +39,6 @@ function Form({ route, method }) {
             setFormError("Please enter a valid email address.");
             return;
         }
-
-        if (password.length < 8) {
-            setFormError("Password must be at least 8 characters long.");
-            return;
-        }
     
     
         if (method === "register") {  

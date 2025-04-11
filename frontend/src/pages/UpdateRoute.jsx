@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useLoadScript } from "@react-google-maps/api";
 import api from "../api";
 import MapDisplay from "../components/MapDisplay";
+import "../styles/UpdateRoute.css";
+
 
 const libraries = ["places"];
 const containerStyle = {
@@ -120,7 +122,7 @@ function UpdateRoute() {
                     origin: startLocation,
                     destination: destination,
                     waypoints: waypoints,
-                    optimizeWaypoints: !isReordered, // Only optimize if not reordered
+                    optimizeWaypoints: !isReordered, // Only optimise if not reordered
                     travelMode: window.google.maps.TravelMode.DRIVING,
                 },
                 (result, status) => {
@@ -166,26 +168,29 @@ function UpdateRoute() {
     if (loading) return <div>Loading updated route...</div>;
 
     return (
-        <div>
-            <div className="route-overview">
-                <h2>{trip?.title}</h2>
-                <h3>Route:</h3>
-                <p>From: {trip?.startLocation}</p>
+        <div className="update-route-page">
+            <div className="route-summary-panel">
+                <h2>Road Trip to {trip?.destination?.split(",")[0]}</h2>
+                <p><strong>Start:</strong> {trip?.startLocation}</p>
                 {renderPitstops()}
-                <p>To: {trip?.destination}</p>
-                <p>Distance: {distance}</p>
-                <p>Duration: {duration}</p>
+                <p><strong>End:</strong> {trip?.destination}</p>
+                <p><strong>Distance:</strong> {distance}</p>
+                <p><strong>Duration:</strong> {duration}</p>
+                
+                <div className="route-buttons">
+                    <button onClick={editPitstops}>Edit Pitstops</button>
+                    <button onClick={() => navigate(`/route/${id}/petrol-calculator`, { state: { distance } })}>
+                        Estimate Petrol Cost
+                    </button>
+                    <button onClick={() => navigate("/")}>Back to Dashboard</button>
+                </div>
             </div>
-
-            <MapDisplay directions={directions} />
-            <div>
-                <button onClick={editPitstops}>Edit Pitstops</button>
-                <button onClick={() => navigate(`/route/${id}/petrol-calculator`, { state: { distance } })}>
-                    Estimate Petrol Cost
-                </button>
-                <button onClick={() => navigate("/")}>Back to Dashboard</button>
+            
+            <div className="route-map">
+                <MapDisplay directions={directions} />
             </div>
         </div>
+
     );
 }
 

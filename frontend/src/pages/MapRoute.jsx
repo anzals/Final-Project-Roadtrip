@@ -5,6 +5,7 @@ import api from "../api";
 import Header from "../components/Header" 
 import MapDisplay from "../components/MapDisplay";
 import RouteDetails from "../components/RouteDetails";
+import "../styles/MapRoute.css"
 
 const libraries = ["places"];
 const containerStyle = {
@@ -129,17 +130,22 @@ function MapRoute() {
     return (
         <div className="map-route-page">
             <Header />
-            <div>
-                <MapDisplay directions={directions} />
-                <RouteDetails trip={trip} distance={distance} duration={duration} />
-                {hasRoute && (
-                    <div>
-                        <button onClick={goToDashboard}>Back to Dashboard</button>
+            <div className="map-route-container">
+                <div className="route-info-card">
+                    <RouteDetails trip={trip} distance={distance} duration={duration} />
+                    
+                    <div className="button-group">
                         <button onClick={navigateToAddPitstop}>Add Pitstops</button>
+                        <button onClick={goToDashboard}>Back to Dashboard</button>
                     </div>
-                )}
+                </div>
+                
+                <div className="map-wrapper">
+                    <MapDisplay directions={directions} />
+                </div>
             </div>
         </div>
+
         );
     }
 

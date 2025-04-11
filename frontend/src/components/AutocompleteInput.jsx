@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 
-function AutocompleteInput({ id, placeholder, value, onChange }) {
+function AutocompleteInput({ id, placeholder, value, onChange, setPlaceDetails }) {
     const [autocomplete, setAutocomplete] = useState(null);
 
     const onLoad = (autoC) => {
@@ -11,9 +11,16 @@ function AutocompleteInput({ id, placeholder, value, onChange }) {
     const onPlaceChanged = () => {
         if (autocomplete) {
             const place = autocomplete.getPlace();
-            if (place && place.formatted_address) {
-                onChange(place.formatted_address);
+    
+            if (!place.geometry) {
+                console.error("No details available for input: ", place);
+                if (setPlaceDetails) setPlaceDetails(null);
+                return;
             }
+
+            const address = place.formatted_address || place.name;
+            onChange(address); // Update visible text
+            if (setPlaceDetails) setPlaceDetails(place); // Store full place object
         }
     };
 
@@ -22,7 +29,7 @@ function AutocompleteInput({ id, placeholder, value, onChange }) {
             onLoad={onLoad}
             onPlaceChanged={onPlaceChanged}
             options={{
-                componentRestrictions: { country: "gb" }, 
+                componentRestrictions: { country: "gb" },
             }}
         >
             <input
@@ -30,7 +37,10 @@ function AutocompleteInput({ id, placeholder, value, onChange }) {
                 type="text"
                 placeholder={placeholder}
                 value={value}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => {
+                    onChange(e.target.value);
+                    if (setPlaceDetails) setPlaceDetails(null); // Clear place if user types manually
+                }}
                 required
             />
         </Autocomplete>

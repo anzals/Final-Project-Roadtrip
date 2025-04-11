@@ -1,0 +1,84 @@
+.map-route-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 2rem;
+    justify-content: center;
+  }
+  
+  .route-info-card {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .route-info-card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .route-info-card p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .button-group button {
+    flex: 1;
+    background-color: #7ec8b1;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .button-group button:hover {
+    background-color: #65b29e;
+  }
+  
+  .map-wrapper {
+    flex: 2;
+    min-width: 500px;
+    height: 500px;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  @media (max-width: 768px) {
+    .map-route-container {
+      flex-direction: column;
+      padding: 1rem;
+    }
+  
+    .route-info-card,
+    .map-wrapper {
+      width: 100%;
+      max-width: none;
+    }
+  
+    .map-wrapper {
+      height: 400px;
+    }
+  
+    .button-group {
+      flex-direction: column;
+    }
+  
+    .button-group button {
+      width: 100%;
+    }
+  }
+  

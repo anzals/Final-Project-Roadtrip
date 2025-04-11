@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
+import { FaRoute, FaTrash } from "react-icons/fa";
 import "../styles/Trip.css"
 
 function Trip({ trip, onDelete }) {
@@ -29,6 +29,11 @@ function Trip({ trip, onDelete }) {
         <div className="trips">
             <p className="trip-title">{trip.title}</p>
             <p className="trip-date">{formattedTripDate}</p>
+            <div className="trip-route">
+                <span className="route-start">{trip.startLocation}</span>
+                <span className="route-arrow">→</span>
+                <span className="route-end">{trip.destination}</span>
+            </div>
             <button className="details-button" onClick={handleDetailsClick}>
                 See Details
             </button>
