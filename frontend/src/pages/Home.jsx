@@ -9,6 +9,7 @@ import "../styles/Home.css";
 
 function Home({ trips, getTrips }) {
     const [firstName, setFirstName] = useState("");
+    const [userId, setUserId] = useState(null);
     const [showPast, setShowPast] = useState(false);
 
     // Ensure today is at midnight for accurate comparison
@@ -17,9 +18,7 @@ function Home({ trips, getTrips }) {
 
     // Sort trips by date
     const validTrips = trips.filter(trip => trip.tripDate); // make sure tripDate exists
-
-const sortedTrips = [...validTrips].sort(
-    (a, b) => new Date(a.tripDate) - new Date(b.tripDate)
+    const sortedTrips = [...validTrips].sort((a, b) => new Date(a.tripDate) - new Date(b.tripDate)
 );
 
 const upcomingTrips = sortedTrips.filter((trip) => {
@@ -49,7 +48,9 @@ const pastTrips = sortedTrips.filter((trip) => {
                         },
                     });
                     setFirstName(response.data.first_name);
+                    setUserId(response.data.id);
                     localStorage.setItem("firstName", response.data.first_name);
+                    localStorage.setItem("userId", response.data.id);
                 } catch (err) {
                     console.error("Error fetching user data", err);
                 }
@@ -87,12 +88,10 @@ const pastTrips = sortedTrips.filter((trip) => {
 
                 <div className="planner">
                     <span className="upcoming-trips">Upcoming Trips</span>
-
-                    {/* UPCOMING TRIPS */}
                     <div className="trip-container">
                         {upcomingTrips.length > 0 ? (
                             upcomingTrips.map((trip) => (
-                                <Trip trip={trip} key={trip.id} onDelete={deleteTrip} />
+                                <Trip trip={trip} key={trip.id} onDelete={deleteTrip} currentUserId={userId} />
                             ))
                         ) : (
                             <p>No upcoming trips. Plan one now!</p>
@@ -107,7 +106,7 @@ const pastTrips = sortedTrips.filter((trip) => {
                             {showPast && (
                                 <div className="trip-container">
                                     {pastTrips.map((trip) => (
-                                        <Trip trip={trip} key={trip.id} onDelete={deleteTrip} />
+                                        <Trip trip={trip} key={trip.id} onDelete={deleteTrip} currentUserId={userId} />
                                     ))}
                                 </div>
                             )}

@@ -8,10 +8,14 @@ class Trip(models.Model):
     destination = models.CharField(max_length=255)  
     tripDate = models.DateField()  
     created_at = models.DateTimeField(auto_now_add=True) 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trips") 
-
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trips")
+    collaborators = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="collaborated_trips", blank=True)
+    
     def __str__(self):
         return self.title
+    
+    def is_user_allowed(self, user):
+        return user == self.author or user in self.collaborators.all()
     
 class Route(models.Model):
     trip = models.OneToOneField(Trip, on_delete=models.CASCADE, primary_key=True, related_name="route")  # Same ID as trip if overwritten
@@ -43,7 +47,6 @@ class RoadtripUser(AbstractBaseUser):
     first_name = models.CharField(max_length=30, blank=True, null=True)  
     last_name = models.CharField(max_length=30, blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)  # Allows Django Admin access if needed
 
     objects = RoadtripUserManager()
 

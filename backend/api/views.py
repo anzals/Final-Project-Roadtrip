@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from rest_framework import generics, status, serializers
+from rest_framework import generics, status, serializers, permissions
 from .serializers import UserSerializer, TripSerializer, RouteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Trip, RoadtripUser, Route
@@ -7,9 +7,11 @@ from rest_framework.generics import RetrieveAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import LoginSerializerWithFeedback
+from .serializers import LoginSerializerWithFeedback, CollaboratorSerializer
 import json
 from django.core.mail import send_mail
+from django.db import models
+
 
 class TripListCreate(generics.ListCreateAPIView):
     serializer_class = TripSerializer
@@ -17,7 +19,7 @@ class TripListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Trip.objects.filter(author=user)  # Users only see their own trips
+        return Trip.objects.filter(models.Q(author=user) | models.Q(collaborators=user)).distinct() # Users can see their own trips and trip that they were added as collaborators
 
     def perform_create(self, serializer):
         if serializer.is_valid():
@@ -113,6 +115,10 @@ class TripDetailView(RetrieveAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
 
+    def get(self, request, *args, **kwargs):
+        print(f"TripDetailView: Trip ID = {kwargs.get('pk')}")
+        return super().get(request, *args, **kwargs)
+
 class RouteListCreate(generics.ListCreateAPIView):
     serializer_class = RouteSerializer
     permission_classes = [IsAuthenticated]
@@ -124,7 +130,10 @@ class RouteListCreate(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         trip_id = self.request.data.get("trip")
         try:
-            trip = Trip.objects.get(id=trip_id, author=self.request.user)
+            trip = get_object_or_404(Trip, id=trip_id)
+            if not trip.is_user_allowed(self.request.user):
+                raise serializers.ValidationError("You do not have permission to edit this trip's route.")
+
             # Use update_or_create to handle both creation and update
             route, created = Route.objects.update_or_create(
                 trip=trip,
@@ -155,6 +164,8 @@ class AddPitstopView(APIView):
         try:
             # Fetch the route object for the given trip ID or return 404 if not found
             route = get_object_or_404(Route, trip_id=trip_id)
+            if not route.trip.is_user_allowed(request.user):
+                return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
 
             pitstop = request.data.get("pitstop")
             if not pitstop:
@@ -193,6 +204,8 @@ class UpdateRouteView(generics.UpdateAPIView):
     def patch(self, request, trip_id):
         try:
             route = get_object_or_404(Route, trip_id=trip_id)
+            if not route.trip.is_user_allowed(request.user):
+                return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
 
             # Update the route details
             route.distance = request.data.get("distance", route.distance)
@@ -209,3 +222,93 @@ class UpdateRouteView(generics.UpdateAPIView):
 
 class LoginViewWithFeedback(TokenObtainPairView):
     serializer_class = LoginSerializerWithFeedback
+
+class GetUserByIdView(RetrieveAPIView):
+    queryset = RoadtripUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class TripCollaboratorsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, trip_id):
+        try:
+            trip = get_object_or_404(Trip, id=trip_id)
+            
+            if not trip.is_user_allowed(request.user):
+                return Response({'detail': 'Not authorized'}, status=403)
+
+            collaborators = trip.collaborators.all()
+            
+            return Response({
+                'status': 'success',
+                'data': {
+                    'owner': {
+                        'id': trip.author.id,
+                        'email': trip.author.email,
+                        'first_name': trip.author.first_name,
+                        'last_name': trip.author.last_name
+                    },
+                    'collaborators': CollaboratorSerializer(collaborators, many=True).data,
+                    'current_user_is_owner': request.user.id == trip.author.id
+                }
+            })
+        except Exception as e:
+            return Response({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
+
+    def post(self, request, trip_id):
+        trip = get_object_or_404(Trip, id=trip_id)
+        
+        if request.user != trip.author:
+            return Response(
+                {'detail': 'Only the trip owner can add collaborators'}, 
+                status=403
+            )
+        
+        email = request.data.get('email')
+        if not email:
+            return Response(
+                {'detail': 'Email is required'}, 
+                status=400
+            )
+
+        try:
+            user_to_add = RoadtripUser.objects.get(email=email)
+            if trip.collaborators.filter(id=user_to_add.id).exists():
+                return Response(
+                    {'detail': 'User is already a collaborator'},
+                    status=400
+                )
+            
+            trip.collaborators.add(user_to_add)
+            return Response(
+                {'status': 'success', 'message': 'Collaborator added successfully'},
+                status=200
+            )
+        except RoadtripUser.DoesNotExist:
+            return Response(
+                {'detail': 'User not found'},
+                status=404
+            )
+
+    def delete(self, request, trip_id):
+        trip = get_object_or_404(Trip, id=trip_id)
+
+        if request.user != trip.author:
+            return Response({'detail': 'Only the trip owner can remove collaborators'}, status=403)
+
+        email = request.data.get('email')
+        if not email:
+            return Response({'detail': 'Email is required'}, status=400)
+
+        try:
+            user_to_remove = RoadtripUser.objects.get(email=email)
+        except RoadtripUser.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=404)
+
+        trip.collaborators.remove(user_to_remove)
+        return Response({'detail': 'Collaborator removed successfully'}, status=200)

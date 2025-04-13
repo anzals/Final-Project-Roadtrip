@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { FaRoute, FaTrash } from "react-icons/fa";
 import "../styles/Trip.css"
 
-function Trip({ trip, onDelete }) {
+function Trip({ trip, onDelete, currentUserId }) {
     const navigate = useNavigate();
     const formattedDate = new Date(trip.created_at).toLocaleDateString("en-UK")
 

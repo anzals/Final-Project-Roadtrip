@@ -19,8 +19,8 @@ function AutocompleteInput({ id, placeholder, value, onChange, setPlaceDetails }
             }
 
             const address = place.formatted_address || place.name;
-            onChange(address); // Update visible text
-            if (setPlaceDetails) setPlaceDetails(place); // Store full place object
+            onChange(address);
+            if (setPlaceDetails) setPlaceDetails(place); 
         }
     };
 

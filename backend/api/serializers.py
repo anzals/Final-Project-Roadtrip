@@ -25,6 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class TripSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
     has_route = serializers.SerializerMethodField()
     has_updated_route = serializers.SerializerMethodField()
 
@@ -61,3 +62,8 @@ class LoginSerializerWithFeedback(TokenObtainPairSerializer):
             raise AuthenticationFailed("Incorrect password.")
 
         return super().validate(attrs)
+
+class CollaboratorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoadtripUser
+        fields = ['id', 'email', 'first_name', 'last_name']

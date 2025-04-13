@@ -13,7 +13,8 @@ const containerStyle = {
 };
 
 function UpdateRoute() {
-    const { id } = useParams();  // Fetch the trip ID from the URL
+    const { id} = useParams();  // Fetch the trip ID from the URL
+    const { id: tripId } = useParams();  // Fetch the trip ID from the URL
     const [trip, setTrip] = useState(null);
     const [directions, setDirections] = useState(null);
     const [distance, setDistance] = useState("");
@@ -77,7 +78,11 @@ function UpdateRoute() {
                                 const totalDistance = legs.reduce((acc, leg) => acc + leg.distance.value, 0);
                                 const totalDuration = legs.reduce((acc, leg) => acc + leg.duration.value, 0);
                                 setDistance((totalDistance / 1000).toFixed(2) + " km");
-                                setDuration((totalDuration / 60).toFixed(0) + " mins");
+                                const hours = Math.floor(totalDuration / 3600);
+                                const minutes = Math.round((totalDuration % 3600) / 60);
+                                const formattedDuration = `${hours > 0 ? hours + " hr " : ""}${minutes} min`;
+                                setDuration(formattedDuration);
+
                             } else {
                                 console.error("Error calculating route from saved path:", status);
                             }
@@ -176,11 +181,13 @@ function UpdateRoute() {
                 <p><strong>End:</strong> {trip?.destination}</p>
                 <p><strong>Distance:</strong> {distance}</p>
                 <p><strong>Duration:</strong> {duration}</p>
-                
                 <div className="route-buttons">
                     <button onClick={editPitstops}>Edit Pitstops</button>
                     <button onClick={() => navigate(`/route/${id}/petrol-calculator`, { state: { distance } })}>
                         Estimate Petrol Cost
+                    </button>
+                    <button className="collab-button" onClick={() => navigate(`/trip/${tripId}`)}>
+                        Manage Collaborators
                     </button>
                     <button onClick={() => navigate("/")}>Back to Dashboard</button>
                 </div>
