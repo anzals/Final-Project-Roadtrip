@@ -7,11 +7,7 @@ import MapDisplay from "../components/MapDisplay";
 import RouteDetails from "../components/RouteDetails";
 import "../styles/MapRoute.css"
 
-const libraries = ["places"];
-const containerStyle = {
-    width: "100%",
-    height: "500px",
-};
+const LIBRARIES = ["places"];
 
 function MapRoute() {
     const { id } = useParams();
@@ -25,7 +21,7 @@ function MapRoute() {
 
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-        libraries,
+        libraries: LIBRARIES,
     });
 
     //Check if the route for this trip is already saved when the page loads
@@ -63,7 +59,7 @@ function MapRoute() {
             const directionsService = new window.google.maps.DirectionsService();
             directionsService.route(
                 {
-                    origin: trip.startLocation,
+                    origin: trip.start_location,
                     destination: trip.destination,
                     travelMode: window.google.maps.TravelMode.DRIVING,
                 },
@@ -77,11 +73,11 @@ function MapRoute() {
                         // Save or update the route automatically
                         const newRoute = {
                             trip: trip.id,
-                            startLocation: trip.startLocation,
+                            start_location: trip.start_location,
                             destination: trip.destination,
                             distance: route.distance.text,
                             duration: route.duration.text,
-                            routePath: JSON.stringify(result.routes[0].overview_polyline),
+                            route_path: JSON.stringify(result.routes[0].overview_polyline),
                         };
 
                         api.post("/api/routes/", newRoute, {
@@ -113,7 +109,7 @@ function MapRoute() {
     // Navigation to the Add Pitstop page
     const navigateToAddPitstop = () => {
         if (trip && trip.id) {
-            navigate(`/route/${trip.id}/add-pitstop`);
+            navigate(`/route/${id}/add-pitstop`);
         } else {
             alert("Trip ID not found!");
         }
@@ -134,9 +130,12 @@ function MapRoute() {
                 <div className="route-info-card">
                     <RouteDetails trip={trip} distance={distance} duration={duration} />
                     
-                    <div className="button-group">
+                    <div className="route-controls">
                         <button onClick={navigateToAddPitstop}>Add Pitstops</button>
-                        <button onClick={goToDashboard}>Back to Dashboard</button>
+
+                        <button onClick={goToDashboard}>
+                            Back to Dashboard
+                        </button>
                     </div>
                 </div>
                 

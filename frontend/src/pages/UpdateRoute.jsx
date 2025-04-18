@@ -3,20 +3,18 @@ import { useEffect, useState } from "react";
 import { useLoadScript } from "@react-google-maps/api";
 import api from "../api";
 import MapDisplay from "../components/MapDisplay";
+import Layout from "../components/Layout";
 import "../styles/UpdateRoute.css";
+import "../styles/MapDisplay.css";
 
 
-const libraries = ["places"];
-const containerStyle = {
-    width: "100%",
-    height: "500px",
-};
+const LIBRARIES = ["places"];
 
 function UpdateRoute() {
-    const { id} = useParams();  // Fetch the trip ID from the URL
-    const { id: tripId } = useParams();  // Fetch the trip ID from the URL
+    const { id} = useParams();  
     const [trip, setTrip] = useState(null);
     const [directions, setDirections] = useState(null);
+    const [legs, setLegs] = useState([]);
     const [distance, setDistance] = useState("");
     const [duration, setDuration] = useState("");
     const [pitstops, setPitstops] = useState([]);
@@ -25,10 +23,9 @@ function UpdateRoute() {
     const navigate = useNavigate();
     const location = useLocation();
 
-
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-        libraries,
+        libraries: LIBRARIES,
     });
 
     // Fetch trip and route details
@@ -58,12 +55,12 @@ function UpdateRoute() {
                 }
     
                 // If a saved route path exists, use it
-                if (routeRes.data.routePath) {
-                    const decodedPath = JSON.parse(routeRes.data.routePath);
+                if (routeRes.data.route_path) {
+                    const decodedPath = JSON.parse(routeRes.data.route_path);
                     const directionsService = new window.google.maps.DirectionsService();
                     directionsService.route(
                         {
-                            origin: tripRes.data.startLocation,
+                            origin: tripRes.data.start_location,
                             destination: tripRes.data.destination,
                             waypoints: pitstopsData.map((stop) => ({
                                 location: stop,
@@ -74,13 +71,14 @@ function UpdateRoute() {
                         (result, status) => {
                             if (status === "OK") {
                                 setDirections(result);
+                                setLegs(result.routes[0].legs);
                                 const legs = result.routes[0].legs;
                                 const totalDistance = legs.reduce((acc, leg) => acc + leg.distance.value, 0);
                                 const totalDuration = legs.reduce((acc, leg) => acc + leg.duration.value, 0);
                                 setDistance((totalDistance / 1000).toFixed(2) + " km");
                                 const hours = Math.floor(totalDuration / 3600);
                                 const minutes = Math.round((totalDuration % 3600) / 60);
-                                const formattedDuration = `${hours > 0 ? hours + " hr " : ""}${minutes} min`;
+                                const formattedDuration = `${hours > 0 ? hours + " hrs " : ""}${minutes} mins`;
                                 setDuration(formattedDuration);
 
                             } else {
@@ -112,39 +110,46 @@ function UpdateRoute() {
     
 
     // Function to calculate the route and update distance and duration
-    const calculateRoute = (startLocation, destination, pitstopsData) => {
-        if (startLocation && destination && isLoaded) {
-            const waypoints = pitstopsData.map((stop) => ({
-                location: stop,
-                stopover: true,
-            }));
+    const calculateRoute = () => {
+        if (!trip || !isLoaded) return;
     
-            const isReordered = location.state?.reorderedPitstops ? true : false;
+        const waypoints = pitstops.map((stop) => ({
+            location: stop,
+            stopover: true,
+        }));
     
-            const directionsService = new window.google.maps.DirectionsService();
-            directionsService.route(
-                {
-                    origin: startLocation,
-                    destination: destination,
-                    waypoints: waypoints,
-                    optimizeWaypoints: !isReordered, // Only optimise if not reordered
-                    travelMode: window.google.maps.TravelMode.DRIVING,
-                },
-                (result, status) => {
-                    if (status === "OK") {
-                        setDirections(result);
-                        const legs = result.routes[0].legs;
-                        const totalDistance = legs.reduce((acc, leg) => acc + leg.distance.value, 0);
-                        const totalDuration = legs.reduce((acc, leg) => acc + leg.duration.value, 0);
-                        setDistance((totalDistance / 1000).toFixed(2));
-                        setDuration((totalDuration / 60).toFixed(0));
-                    } else {
-                        console.error("Error calculating route:", status);
-                    }
+        const isReordered = !!location.state?.reorderedPitstops;
+    
+        const directionsService = new window.google.maps.DirectionsService();
+        directionsService.route(
+            {
+                origin: trip.start_location,
+                destination: trip.destination,
+                waypoints: waypoints,
+                optimizeWaypoints: !isReordered,
+                travelMode: window.google.maps.TravelMode.DRIVING,
+            },
+            (result, status) => {
+                if (status === "OK") {
+                    setDirections(result);
+                    const legs = result.routes[0].legs;
+                    setLegs(legs);
+    
+                    const totalDistance = legs.reduce((acc, leg) => acc + leg.distance.value, 0);
+                    const totalDuration = legs.reduce((acc, leg) => acc + leg.duration.value, 0);
+    
+                    setDistance((totalDistance / 1000).toFixed(2) + " km");
+    
+                    const hours = Math.floor(totalDuration / 3600);
+                    const minutes = Math.round((totalDuration % 3600) / 60);
+                    setDuration(`${hours > 0 ? hours + " hrs " : ""}${minutes} mins`);
+                } else {
+                    console.error("Error calculating route:", status);
                 }
-            );
-        }
+            }
+        );
     };
+    
     
     
 
@@ -160,6 +165,16 @@ function UpdateRoute() {
         ));
     };
 
+    const renderLegs = () => {
+        return legs.map((leg, index) => (
+            <div key={index} className="segment">
+                <p><strong>{leg.start_address}</strong> → <strong>{leg.end_address}</strong></p>
+                <p className="segment-info">
+                    Distance: {(leg.distance.value / 1000).toFixed(2)} km, Duration: {Math.round(leg.duration.value / 60)} mins
+                </p>
+            </div>
+        ));
+    };    
 
     // Navigate to edit pitstops page
     const editPitstops = () => {
@@ -173,32 +188,54 @@ function UpdateRoute() {
     if (loading) return <div>Loading updated route...</div>;
 
     return (
-        <div className="update-route-page">
-            <div className="route-summary-panel">
-                <h2>Road Trip to {trip?.destination?.split(",")[0]}</h2>
-                <p><strong>Start:</strong> {trip?.startLocation}</p>
-                {renderPitstops()}
-                <p><strong>End:</strong> {trip?.destination}</p>
-                <p><strong>Distance:</strong> {distance}</p>
-                <p><strong>Duration:</strong> {duration}</p>
-                <div className="route-buttons">
-                    <button onClick={editPitstops}>Edit Pitstops</button>
-                    <button onClick={() => navigate(`/route/${id}/petrol-calculator`, { state: { distance } })}>
-                        Estimate Petrol Cost
-                    </button>
-                    <button className="collab-button" onClick={() => navigate(`/trip/${tripId}`)}>
-                        Manage Collaborators
-                    </button>
-                    <button onClick={() => navigate("/")}>Back to Dashboard</button>
+        <Layout>
+          <div className="update-route-page">
+            <div className="update-route-layout">
+              <div className="route-summary-panel">
+                <h2>{trip?.title}</h2>
+                <h4 className="trip-subtitle">Road Trip to {trip?.destination?.split(",")[0]}</h4>
+                {trip && directions && (
+                  <div className="stops-timeline">
+                    {[trip.start_location, ...pitstops, trip.destination].map((stop, index, arr) => (
+                      <div key={index}>
+                        <p className="stop-bubble">{stop}</p>
+                        {index < arr.length - 1 && legs[index] && (
+                          <div className="segment-info-line">
+                            <div className="segment-info-text">
+                              <span>Distance: {(legs[index].distance.value / 1000).toFixed(2)} km</span><br />
+                              <span>Duration: {Math.round(legs[index].duration.value / 60)} mins</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+      
+                <div className="totals-box">
+                  <p><strong>Total Distance:</strong> {distance}</p>
+                  <p><strong>Total Duration:</strong> {duration}</p>
                 </div>
-            </div>
-            
-            <div className="route-map">
+      
+                <div className="route-buttons">
+                  <button onClick={editPitstops}>Edit Pitstops</button>
+                  <button onClick={() => navigate(`/route/${id}/petrol-calculator`, { state: { distance } })}>
+                    Estimate Petrol Cost
+                  </button>
+                  <button className="collab-button" onClick={() => navigate(`/trip/${id}`)}>
+                    Manage Collaborators
+                  </button>
+                  <button onClick={() => navigate("/")}>Back to Dashboard</button>
+                </div>
+              </div>
+      
+              <div className="route-map">
                 <MapDisplay directions={directions} />
+              </div>
             </div>
-        </div>
-
-    );
+          </div>
+        </Layout>
+      );      
 }
 
 export default UpdateRoute;

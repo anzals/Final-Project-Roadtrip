@@ -1,0 +1,111 @@
+.profile-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .profile-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .profile-header h2 {
+    font-size: 3rem;
+    color: #2c4a53;
+    font-weight: 400;
+  }
+  
+  .edit-user-profile-button {
+    background-color: #a6d1cf;
+    color: #000;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.4rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .profile-forms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    width: 100%;
+  }
+  
+  .profile-card,
+  .password-change-card {
+    border: 1px solid #444;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    background-color: #fff;
+  }
+  
+  .profile-card label,
+  .password-change-card label {
+    font-weight: 600;
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+    font-size: 1rem;
+  }
+  
+  .profile-card input,
+  .password-change-card input {
+    width: 90%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.4rem;
+    background-color: #fafafa;
+  }
+  
+  .save-button {
+    background-color: #a6d1cf;
+    color: #000;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    margin-top: 1.5rem;
+    border-radius: 0.4rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .message {
+    margin-top: 1rem;
+    color: #b30000;
+    font-weight: bold;
+  }
+  
+  .delete-account-section {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  
+  .delete-profile-button {
+    background-color: #b30000;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 0.4rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .delete-popup {
+    background-color: #fff7f7;
+    padding: 1.5rem;
+    border: 1px solid #e0b4b4;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    text-align: center;
+  }
+  

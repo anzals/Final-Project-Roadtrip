@@ -4,8 +4,9 @@ import { useLoadScript, Autocomplete } from "@react-google-maps/api";
 import api from "../api";
 import "../styles/PlanTrip.css"
 import AutocompleteInput from "../components/AutocompleteInput";
+import Layout from "../components/Layout";
 
-const libraries = ["places"];
+const LIBRARIES = ["places"];
 
 function PlanTrip({ addTrip }) {
     const [title, setTitle] = useState("");
@@ -18,8 +19,9 @@ function PlanTrip({ addTrip }) {
 
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-        libraries,
+        libraries: LIBRARIES, 
     });
+    
 
     if (!isLoaded) return <div>Loading Google Maps...</div>;
 
@@ -33,9 +35,9 @@ function PlanTrip({ addTrip }) {
 
         const newTrip = {
             title,
-            startLocation: startPlaceDetails.formatted_address,
+            start_location: startPlaceDetails.formatted_address,
             destination: destinationPlaceDetails.formatted_address,
-            tripDate,
+            trip_date: tripDate,
         };
         
         api.post("/api/trips/", newTrip)
@@ -59,52 +61,54 @@ function PlanTrip({ addTrip }) {
 
     
     return (
-        <div className="plan-trip-container">
-            <h2>Plan a Trip</h2>
-            <p><em>Prepare yourself for a new adventure.</em></p>
-            <form onSubmit={createTrip} className="">
+        <Layout>
+            <div className="plan-trip-container">
+                <h2>Plan a Trip</h2>
+                <p><em>Prepare yourself for a new adventure.</em></p>
+                <form onSubmit={createTrip} className="">
                 
-                <input
-                    type="text"
-                    placeholder="Trip Name"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                />
+                    <input
+                        type="text"
+                        placeholder="Trip Name"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                    />
                 
-                <AutocompleteInput
-                    id="startLocation"
-                    placeholder="Starting Location?"
-                    value={startLocation}
-                    onChange={setStartLocation}
-                    setPlaceDetails={setStartPlaceDetails}
-                />
+                    <AutocompleteInput
+                        id="startLocation"
+                        placeholder="Starting Location?"
+                        value={startLocation}
+                        onChange={setStartLocation}
+                        setPlaceDetails={setStartPlaceDetails}
+                    />
 
-                <AutocompleteInput
-                    id="destination"
-                    placeholder="Destination?"
-                    value={destination}
-                    onChange={setDestination}
-                    setPlaceDetails={setDestinationPlaceDetails}
-                />
+                    <AutocompleteInput
+                        id="destination"
+                        placeholder="Destination?"
+                        value={destination}
+                        onChange={setDestination}
+                        setPlaceDetails={setDestinationPlaceDetails}
+                    />
                 
-                <input
-                    type="date"
-                    value={tripDate}
-                    min={new Date().toISOString().split("T")[0]}  // Restrict to today and future
-                    onFocus={(e) => (e.target.min = new Date().toISOString().split("T")[0])} 
-                    onChange={(e) => setTripDate(e.target.value)}
-                    required
-                    title="Select a future date"
-                />
+                    <input
+                        type="date"
+                        value={tripDate}
+                        min={new Date().toISOString().split("T")[0]}  // Restrict to today and future
+                        onFocus={(e) => (e.target.min = new Date().toISOString().split("T")[0])} 
+                        onChange={(e) => setTripDate(e.target.value)}
+                        required
+                        title="Select a future date"
+                    />
 
 
 
-                <button type="submit" className="save-trip-button">
-                    Save Trip
-                </button>
-            </form>
-        </div>
+                    <button type="submit" className="save-trip-button">
+                        Save Trip
+                    </button>
+                </form>
+            </div>
+        </Layout>
     );
     
 }

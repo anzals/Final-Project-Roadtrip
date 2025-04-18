@@ -135,7 +135,7 @@ STATIC_URL = 'static/'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWS_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -150,7 +150,6 @@ EMAIL_HOST_USER = 'roadtripwebapp@gmail.com'
 EMAIL_HOST_PASSWORD = 'ypnc mtvk hvdb arzk'
 EMAIL_USE_TLS = True 
 EMAIL_USE_SSL = False 
-DEFAULT_FROM_EMAIL = 'noreply@roadtripmate.com'
 DEFAULT_FROM_EMAIL = 'Roadtrip Planner <roadtripwebapp@gmail.com>'
 
 APPEND_SLASH = False

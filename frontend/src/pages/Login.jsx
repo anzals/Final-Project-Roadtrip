@@ -1,17 +1,16 @@
 import Form from "../components/Form" //connects to form structure
-import Header from "../components/Header" 
-import Footer from "../components/Footer" 
+import Layout from "../components/Layout";
 import "../styles/Login.css"
 
 function Login() {
     return (
-        <div className="login-page">
-            <Header />
-            <main className="login-container">
-                <Form route="/api/token/" method="login" />
-            </main>
-            <Footer />
-        </div>
+        <Layout>
+            <div className="login-page">
+                <main className="login-container">
+                    <Form route="/api/token/" method="login" />
+                </main>
+            </div>
+        </Layout>
     );
 }
 

@@ -5,7 +5,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
 
 
-# Serializers act as a bridge, converting Django models (python objects) to JSON which APIs communicate with.
+# Serializers convert Django models to JSON which APIs communicate with.
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoadtripUser  
@@ -13,8 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "password": {"write_only": True},  # Prevents password from being exposed
             "email": {"required": True},  # Ensure email is required
-            "first_name": {"required": False},
-            "last_name": {"required": False},
+            "first_name": {"required": True},
+            "last_name": {"required": True},
         }
 
     def create(self, validated_data):
@@ -31,7 +31,7 @@ class TripSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Trip
-        fields = ["id", "title", "startLocation", "destination", "tripDate", "created_at", "author", "has_route", "has_updated_route"]
+        fields = ["id", "title", "start_location", "destination", "trip_date", "created_at", "author", "has_route", "has_updated_route"]
         extra_kwargs = {"author": {"read_only": True}} # Ensures author is set automatically
     
     def get_has_route(self, obj):
@@ -47,19 +47,19 @@ class TripSerializer(serializers.ModelSerializer):
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = ["trip", "startLocation", "destination", "distance", "duration", "routePath", "pitstops", "created_at", "updated_at"]
-        extra_kwargs = {"routePath": {"required": False}}  # Allow the pitstop list to be empty
+        fields = ["trip", "start_location", "destination", "distance", "duration", "route_path", "pitstops", "created_at", "updated_at"]
+        extra_kwargs = {"route_path": {"required": False}}  # Allow the pitstop list to be empty
 
 class LoginSerializerWithFeedback(TokenObtainPairSerializer):
     def validate(self, attrs):
         try:
             RoadtripUser.objects.get(email=attrs['email'])
         except RoadtripUser.DoesNotExist:
-            raise AuthenticationFailed("This email is not registered.")
+            raise AuthenticationFailed("Invalid login credentials.")
 
         user = authenticate(email=attrs['email'], password=attrs['password'])
         if not user:
-            raise AuthenticationFailed("Incorrect password.")
+            raise AuthenticationFailed("Invalid login credentials.")
 
         return super().validate(attrs)
 

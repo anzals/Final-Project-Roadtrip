@@ -1,0 +1,145 @@
+.petrol-calculator-page {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    margin: 50px auto;
+    border: 5px solid #8ab4b3;
+    font-family: 'Segoe UI', sans-serif;
+    text-align: left;
+  }
+  
+  .petrol-calculator-page h2.trip-title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    color: #207d86;
+    margin-bottom: 30px;
+  }
+  
+  .petrol-calculator-page label {
+    display: block;
+    margin-top: 10px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .petrol-calculator-page input,
+  .petrol-calculator-page select {
+    appearance: none;
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin-top: 6px;
+    background-color: #fff;
+    box-shadow: none;
+    outline: none;
+  }
+  
+  .petrol-calculator-page input:focus,
+  .petrol-calculator-page select:focus {
+    border-color: #5baeae;
+  }
+  
+  .petrol-calculator-page .form-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 20px;
+  }
+  
+  .half-width {
+    flex: 1;
+  }
+  
+  .form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .inline-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .inline-checkbox input[type="checkbox"] {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #1e293b;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    position: relative;
+    margin-top: 0px;
+  }
+  
+  .inline-checkbox input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 3px;
+    height: 8px;
+    border: solid #1e293b;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  .inline-checkbox label {
+    margin: 0;
+    cursor: default;
+    user-select: none;
+  }
+  
+  
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+  }
+  
+  .petrol-calculator-page button {
+    padding: 0.75rem 1.2rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  button.calculate {
+    background-color: #1e293b;
+    color: white;
+  }
+  
+  button.calculate:hover {
+    background-color: #111827;
+  }
+  
+  button.back {
+    background-color: #e5e7eb;
+    color: #111;
+  }
+  
+  @media (max-width: 600px) {
+    .form-row {
+      flex-direction: column;
+    }
+  }
+  

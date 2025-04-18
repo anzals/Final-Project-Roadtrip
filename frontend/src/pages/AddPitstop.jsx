@@ -2,18 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {useLoadScript } from "@react-google-maps/api";
 import api from "../api";
-import Header from "../components/Header";
 import MapDisplay from "../components/MapDisplay";
 import AutocompleteInput from "../components/AutocompleteInput";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import Layout from "../components/Layout";
 import "../styles/AddPitstop.css"
+import "../styles/MapDisplay.css";
 
 
-const libraries = ["places"];
-const containerStyle = {
-    width: "100%",
-    height: "500px",
-};
+const LIBRARIES = ["places"];
 
 function AddPitstop() {
     const { id } = useParams();
@@ -25,11 +22,13 @@ function AddPitstop() {
     const [categoryFilters, setCategoryFilters] = useState([]);
     const [maxDistanceKm, setMaxDistanceKm] = useState(5); 
     const [suggestedPlaces, setSuggestedPlaces] = useState([]);
+    const [hasReordered, setHasReordered] = useState(false);
+
 
     const navigate = useNavigate();
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-        libraries,
+        libraries: LIBRARIES,
     });
 
     const toggleCategory = (category) => {
@@ -52,7 +51,7 @@ function AddPitstop() {
             const directionsService = new window.google.maps.DirectionsService();
             directionsService.route(
                 {
-                    origin: trip.startLocation,
+                    origin: trip.start_location,
                     destination: trip.destination,
                     travelMode: window.google.maps.TravelMode.DRIVING,
                 },
@@ -170,13 +169,15 @@ function AddPitstop() {
     // Handle drag and drop
     const handleDragEnd = (result) => {
         if (!result.destination) return;
-
+    
         const updatedPitstops = Array.from(selectedPitstops);
         const [movedItem] = updatedPitstops.splice(result.source.index, 1);
         updatedPitstops.splice(result.destination.index, 0, movedItem);
-
+    
         setSelectedPitstops(updatedPitstops);
+        setHasReordered(true); // user manually reordered
     };
+    
 
     // Save reordered pitstops
     const saveReorderedPitstops = async () => {
@@ -201,26 +202,59 @@ function AddPitstop() {
 
     // Update route with pitstops
     const updateRoute = async () => {
-        try {
-            const response = await api.patch(`/api/routes/${id}/update/`, {
-                pitstops: selectedPitstops, 
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-                },
-            });
-
-            if (response.status === 200) {
-                alert("Route updated successfully!");
-                navigate(`/route/${id}/update-route`);
-            } else {
-                alert("Failed to update route.");
+        if (!trip || !isLoaded) return;
+    
+        const directionsService = new window.google.maps.DirectionsService();
+        const waypoints = selectedPitstops.map(stop => ({
+            location: stop,
+            stopover: true,
+        }));
+    
+        directionsService.route(
+            {
+                origin: trip.start_location,
+                destination: trip.destination,
+                waypoints: waypoints,
+                optimizeWaypoints: !hasReordered, // Only optimize if user hasn't reordered
+                travelMode: window.google.maps.TravelMode.DRIVING,
+            },
+            async (result, status) => {
+                if (status === "OK") {
+                    let finalPitstops = selectedPitstops;
+    
+                    if (!hasReordered) {
+                        const optimizedOrder = result.routes[0].waypoint_order;
+                        finalPitstops = optimizedOrder.map(i => selectedPitstops[i]);
+                    }
+    
+                    try {
+                        const response = await api.patch(`/api/routes/${id}/update/`, {
+                            pitstops: finalPitstops,
+                        }, {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                            },
+                        });
+    
+                        if (response.status === 200) {
+                            alert("Route updated successfully!");
+                            navigate(`/route/${id}/update-route`, { state: { reorderedPitstops: hasReordered ? finalPitstops : null } });
+                        } else {
+                            alert("Failed to update route.");
+                        }
+                    } catch (error) {
+                        console.error("Error updating route:", error);
+                        alert("Error updating route.");
+                    }
+                } else {
+                    console.error("Error calculating route:", status);
+                    alert("Error calculating route.");
+                }
             }
-        } catch (error) {
-            console.error("Error updating route:", error);
-            alert("Error updating route.");
-        }
+        );
     };
+    
+    
 
     const searchNearbyPlaces = () => {
         if (!directions || !categoryFilters.length) return;
@@ -250,7 +284,6 @@ function AddPitstop() {
                         allResults.push(...topResults);
                       }                      
     
-                    // Once all requests are complete, set the suggestedPlaces state
                     if (completedRequests === sampledPoints.length * categoryFilters.length) {
                         const unique = Array.from(new Map(allResults.map(p => [p.place_id, p])).values());
                         setSuggestedPlaces(unique);
@@ -262,83 +295,79 @@ function AddPitstop() {
     
 
     return (
-        <div className="add-pitstop-page">
-  <Header />
-
-  <div className="pitstop-layout">
-    {/* Left Column */}
-    <div className="pitstop-controls">
-      <h2>Add Pitstops</h2>
-
-      <div className="control-group">
-        <h4>Discover Nearby</h4>
-        <label><input type="checkbox" value="restaurant" checked={categoryFilters.includes("restaurant")} onChange={() => toggleCategory("restaurant")} /> Restaurants</label>
-        <label><input type="checkbox" value="lodging" checked={categoryFilters.includes("lodging")} onChange={() => toggleCategory("lodging")} /> Hotels</label>
-        <label><input type="checkbox" value="restroom" checked={categoryFilters.includes("restroom")} onChange={() => toggleCategory("restroom")} /> Toilets</label>
-      </div>
-
-      <div className="control-group">
-        <label>Max Radius from Route (km):</label>
-        <input type="number" value={maxDistanceKm} onChange={(e) => setMaxDistanceKm(Number(e.target.value))} min="1" max="20" />
-        <button onClick={searchNearbyPlaces}>Find Pitstops</button>
-      </div>
-
-      <div className="control-group">
-        <h4>Add a Custom Pitstop</h4>
-        <div className="search-row">
-          <AutocompleteInput
-            id="pitstop"
-            placeholder="Search..."
-            value={pitstop}
-            onChange={(value) => setPitstop(value)}
-          />
-          <button onClick={addPitstop}>+</button>
-        </div>
-      </div>
-
-      <div className="control-group">
-        <h4>Selected Pitstops</h4>
-        <DragDropContext onDragEnd={handleDragEnd}>
-  <Droppable droppableId="pitstops">
-    {(provided) => (
-      <ul className="pitstop-list" {...provided.droppableProps} ref={provided.innerRef}>
-        {selectedPitstops.map((ps, index) => (
-          <Draggable key={ps} draggableId={ps} index={index}>
-            {(provided) => (
-              <li
-                className="pitstop-item"
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-              >
-                {ps}
-                <button onClick={() => removePitstop(ps)}>x</button>
-              </li>
-            )}
-          </Draggable>
-        ))}
-        {provided.placeholder}
-      </ul>
-    )}
-  </Droppable>
-</DragDropContext>
-
-      </div>
-
-      <button className="update-btn" onClick={updateRoute}>Update Route</button>
-    </div>
-
-    {/* Right Column */}
-    <div className="pitstop-map">
-      <MapDisplay
-        directions={directions}
-        suggestedPlaces={suggestedPlaces}
-        onAddPitstop={addSuggestedPitstop}
-      />
-    </div>
-  </div>
-</div>
-
+        <Layout>
+            <div className="add-pitstop-page">
+                <div className="pitstop-layout">
+                    <div className="pitstop-controls">
+                        <h2>Add Pitstops</h2>
+                        <div className="control-group">
+                            <h4>Discover Nearby</h4>
+                            <label><input type="checkbox" value="restaurant" checked={categoryFilters.includes("restaurant")} onChange={() => toggleCategory("restaurant")} /> Restaurants</label>
+                            <label><input type="checkbox" value="lodging" checked={categoryFilters.includes("lodging")} onChange={() => toggleCategory("lodging")} /> Hotels</label>
+                            <label><input type="checkbox" value="restroom" checked={categoryFilters.includes("restroom")} onChange={() => toggleCategory("restroom")} /> Toilets</label>
+                            <label><input type="checkbox" value="gas_station" checked={categoryFilters.includes("gas_station")} onChange={() => toggleCategory("gas_station")} /> Petrol Stations</label>
+                            <label><input type="checkbox" value="charging_station" checked={categoryFilters.includes("charging_station")} onChange={() => toggleCategory("charging_station")} /> EV Chargers</label>
+                        </div>
+                        
+                        <div className="control-group">
+                            <label>Max Radius from Route (km):</label>
+                            <input type="number" value={maxDistanceKm} onChange={(e) => setMaxDistanceKm(Number(e.target.value))} min="1" max="20" />
+                            <button onClick={searchNearbyPlaces}>Find Pitstops</button>
+                        </div>
+                        
+                        <div className="control-group">
+                            <h4>Add a Custom Pitstop</h4>
+                            <div className="search-row">
+                                <AutocompleteInput
+                                id="pitstop"
+                                placeholder="Search..."
+                                value={pitstop}
+                                onChange={(value) => setPitstop(value)}
+                                />
+                                <button onClick={addPitstop}>+</button>
+                            </div>
+                        </div>
+                        
+                        <div className="control-group">
+                            <h4>Selected Pitstops</h4>
+                            <DragDropContext onDragEnd={handleDragEnd}>
+                                <Droppable droppableId="pitstops">
+                                    {(provided) => (
+                                        <ul className="pitstop-list" {...provided.droppableProps} ref={provided.innerRef}>
+                                            {selectedPitstops.map((ps, index) => (
+                                                <Draggable key={ps} draggableId={ps} index={index}>
+                                                    {(provided) => (
+                                                        <li
+                                                        className="pitstop-item"
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        >
+                                                            {ps}
+                                                            <button onClick={() => removePitstop(ps)}>x</button>
+                                                        </li>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+                                            {provided.placeholder}
+                                        </ul>
+                                    )}
+                                </Droppable>
+                            </DragDropContext>
+                        </div>
+                        <button className="update-btn" onClick={updateRoute}>Update Route</button>
+                    </div>
+                    
+                    <div className="pitstop-map">
+                        <MapDisplay
+                        directions={directions}
+                        suggestedPlaces={suggestedPlaces}
+                        onAddPitstop={addSuggestedPitstop}
+                        />
+                    </div>
+                </div>
+            </div>
+        </Layout>
     );
 }
 

@@ -1,0 +1,87 @@
+.plan-trip-form {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: white;
+  border: 5px solid #8ab4b3;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.plan-trip-form h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #207d86;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.plan-trip-form label {
+  display: block;
+  margin: 15px 0 6px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
+}
+
+.plan-trip-form input,
+.plan-trip-form input[type="text"],
+.plan-trip-form input[type="date"],
+.plan-trip-form input[type="search"] {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #fafafa;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease;
+}
+
+.plan-trip-form input:focus {
+  border-color: #8ab4b3;
+  outline: none;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.button-group button {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  background-color: #1e293b;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.button-group button:hover {
+  background-color: #334155;
+}
+
+.delete-button {
+  background-color: #f97316;
+}
+
+.delete-button:hover {
+  background-color: #ea580c;
+}
+
+@media screen and (max-width: 300px) {
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+}

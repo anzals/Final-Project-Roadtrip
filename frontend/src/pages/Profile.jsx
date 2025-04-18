@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import Header from '../components/Header';
+import Layout from "../components/Layout";
+import "../styles/Profile.css"
 
 function Profile() {
     const [user, setUser] = useState({ firstName: '', lastName: '', email: '' });
@@ -50,6 +51,9 @@ function Profile() {
             });
     
             if (response.status === 200) {
+                localStorage.setItem("firstName", user.firstName);
+                localStorage.setItem("lastName", user.lastName);
+                localStorage.setItem("email", user.email);
                 setMessage("Profile updated successfully!");
                 setEditMode(false);
             } else {
@@ -132,87 +136,91 @@ function Profile() {
     if (loading) return <div>Loading profile...</div>;
 
     return (
-        <div className="profile-page">
-            <Header />
+        <Layout>
+          <div className="profile-page">
             <div className="profile-container">
+              <div className="profile-header">
                 <h2>User Profile</h2>
+                <button className="edit-user-profile-button" onClick={handleEditToggle}>
+                  {editMode ? "Cancel" : "Edit"}
+                </button>
+              </div>
+      
+              <div className="profile-forms">
                 <div className="profile-card">
-                    <button className="edit-button" onClick={handleEditToggle}>
-                        {editMode ? "Cancel" : "Edit"}
-                    </button>
-                    <div className="profile-info">
-                        <label>First Name</label>
-                        <input
-                            type="text"
-                            value={user.firstName}
-                            disabled={!editMode}
-                            onChange={(e) => setUser({ ...user, firstName: e.target.value })}
-                            onKeyDown={handleKeyPress}
-                        />
-                        <label>Last Name</label>
-                        <input
-                            type="text"
-                            value={user.lastName}
-                            disabled={!editMode}
-                            onChange={(e) => setUser({ ...user, lastName: e.target.value })}
-                            onKeyDown={handleKeyPress}
-                        />
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            value={user.email}
-                            disabled={!editMode}
-                            onChange={(e) => setUser({ ...user, email: e.target.value })}
-                            onKeyDown={handleKeyPress}
-                        />
-                    </div>
+                  <div className="profile-info">
+                    <h3>User Details</h3>
+                    <label>First Name</label>
+                    <input
+                      type="text"
+                      value={user.firstName}
+                      disabled={!editMode}
+                      onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+                      onKeyDown={handleKeyPress}
+                    />
+                    <label>Last Name</label>
+                    <input
+                      type="text"
+                      value={user.lastName}
+                      disabled={!editMode}
+                      onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+                      onKeyDown={handleKeyPress}
+                    />
+                    <label>Email</label>
+                    <input
+                      type="email"
+                      value={user.email}
+                      disabled={!editMode}
+                      onChange={(e) => setUser({ ...user, email: e.target.value })}
+                      onKeyDown={handleKeyPress}
+                    />
+                  </div>
                 </div>
 
                 <div className="password-change-card">
-                    <h3>Change Password</h3>
-                    <label>Current Password</label>
-                    <input
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                    />
-                    <label>New Password</label>
-                    <input
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                    />
-                    <label>Confirm New Password</label>
-                    <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                    <button className="save-button" onClick={handleSavePassword}>
-                        Save
-                    </button>
-                    {message && <p className="message">{message}</p>}
+                  <h3>Change Password</h3>
+                  <label>Current Password</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
+                  <label>New Password</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <label>Confirm New Password</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <button className="save-button" onClick={handleSavePassword}>
+                    Save
+                  </button>
+                  {message && <p className="message">{message}</p>}
                 </div>
-
-                <div className="delete-account-section">
-                    <button
-                        className="delete-button"
-                        onClick={() => setShowDeleteConfirm(true)}
-                    >
-                        Delete Account
-                    </button>
+              </div>
+      
+              <div className="delete-account-section">
+                <button className="delete-profile-button" onClick={() => setShowDeleteConfirm(true)}>
+                  Delete Account
+                </button>
+              </div>
+      
+              {showDeleteConfirm && (
+                <div className="delete-popup">
+                  <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                  <button onClick={handleDeleteAccount}>Yes, delete my account</button>
+                  <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
                 </div>
-
-                {showDeleteConfirm && (
-                    <div className="delete-popup">
-                        <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-                        <button onClick={handleDeleteAccount}>Yes, delete my account</button>
-                        <button onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
-                    </div>
-                )}
+              )}
             </div>
-        </div>
-    );
+          </div>
+        </Layout>
+      );      
 }
 
 export default Profile;

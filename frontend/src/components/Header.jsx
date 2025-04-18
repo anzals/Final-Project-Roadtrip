@@ -34,29 +34,30 @@ function Header() {
 
     return (
         <header className="header">
-            <div className="logo" onClick={handleHome}>
-                <img src="/images/logo.png" alt="Road Trip Mate Logo" className="logo-img" />
+            <div className="header-col" />
+
+            <div className="logo-container" onClick={handleHome}>
+                <img src="/images/logo.jpg" alt="Road Trip Mate Logo" className="logo-img" />
             </div>
-            <h1>Road Trip Mate</h1>
+
+            <div className="header-col right">
             {isLoggedIn && (
-                <div 
-                    className="user-icon-container" 
-                    onMouseEnter={toggleDropdown} 
-                    onMouseLeave={toggleDropdown}
+                <div
+                className="user-dropdown-wrapper"
+                onMouseEnter={() => setDropdownOpen(true)}
+                onMouseLeave={() => setDropdownOpen(false)}
                 >
                     <FaUserCircle className="user-icon" size={30} />
                     {dropdownOpen && (
                         <div className="dropdown">
-                            <button className="dropdown-item" onClick={handleProfile}>
-                                Profile
-                            </button>
-                            <button className="dropdown-item" onClick={handleLogout}>
-                                Logout
-                            </button>
+                            <button className="dropdown-item" onClick={handleProfile}>Profile</button>
+                            <button className="dropdown-item" onClick={handleLogout}>Logout</button>
                         </div>
                     )}
                 </div>
             )}
+            </div>
+
             <div className="header-line" />
         </header>
     );

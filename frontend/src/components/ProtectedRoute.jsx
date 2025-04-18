@@ -29,7 +29,7 @@ function ProtectedRoute({ children }) {
         }
     };
 
-    const auth = async () => { // after sometime makes user login again as the refresh token has expired
+    const auth = async () => { // Handles token refresh when access token expires
         const token = localStorage.getItem(ACCESS_TOKEN);
         if (!token) {
             setIsAuthorized(false);

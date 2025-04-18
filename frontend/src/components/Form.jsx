@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
-import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import "../styles/Form.css";
 import LoadingIndicator from "./LoadingIndicator";
+import { validateEmail, validatePassword, doPasswordsMatch } from '../utils/validate';
+
 
 function Form({ route, method }) {
     const [email, setEmail] = useState("");
@@ -17,8 +18,6 @@ function Form({ route, method }) {
 
     const name = method === "login" ? "Login" : "Register";
     const imageSrc = method === "login" ? "images/login-img.jpg" : "images/signup-img.jpg";
-    <img src={imageSrc} alt="Form visual" className="form-image" onError={() => console.log("Image failed to load:", imageSrc)} />
-
 
     const handleSubmit = async (e) => {
         setLoading(true);
@@ -33,13 +32,11 @@ function Form({ route, method }) {
             setLoading(false);
             return;
         }    
-
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
+        
+        if (!validateEmail(email)) {
             setFormError("Please enter a valid email address.");
             return;
         }
-    
     
         if (method === "register") {  
 
@@ -57,11 +54,9 @@ function Form({ route, method }) {
             const res = await api.post(route, userData);
     
             if (method === "login") {
-                // Store tokens in local storage
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
     
-                // Fetch user profile using the access token
                 const profileRes = await api.get("/api/user/profile/", {
                     headers: {
                         Authorization: `Bearer ${res.data.access}`,
@@ -71,7 +66,6 @@ function Form({ route, method }) {
                 // Save user's first name in local storage
                 localStorage.setItem("firstName", profileRes.data.first_name);
     
-                // Redirect to the home page
                 navigate("/");
             } else {
                 navigate("/login");

@@ -1,9 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status, serializers, permissions
 from .serializers import UserSerializer, TripSerializer, RouteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Trip, RoadtripUser, Route
-from rest_framework.generics import RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -22,23 +22,38 @@ class TripListCreate(generics.ListCreateAPIView):
         return Trip.objects.filter(models.Q(author=user) | models.Q(collaborators=user)).distinct() # Users can see their own trips and trip that they were added as collaborators
 
     def perform_create(self, serializer):
-        if serializer.is_valid():
+        #if serializer.is_valid():
             serializer.save(author=self.request.user)  # Automatically assigns logged-in user as author
-        else:
-            print(serializer.errors)
+        #else:
+         #   print(serializer.errors)
 
 
-class TripDelete(generics.DestroyAPIView):
-    serializer_class = TripSerializer
+class TripDelete(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        user = self.request.user
-        return Trip.objects.filter(author=user)  # Users can only delete their own trips
+    def delete(self, request, pk):
+        try:
+            trip = get_object_or_404(Trip, pk=pk)
+            user = request.user
+
+            if trip.author == user:
+                trip.delete()
+                return Response(status=204)
+
+            elif user in trip.collaborators.all():
+                trip.collaborators.remove(user)
+                return Response({"message": "Trip removed from your dashboard."}, status=200)
+
+            else:
+                return Response({"detail": "You do not have permission to delete this trip."}, status=403)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
 
 
 class CreateUserView(generics.CreateAPIView):
-    queryset = RoadtripUser.objects.all()  # Use CustomUser instead of User
+    queryset = RoadtripUser.objects.all()  # Creates a user using the custom RoadtripUser model
     serializer_class = UserSerializer
     permission_classes = [AllowAny]  # Anyone can register a new user
 
@@ -51,10 +66,7 @@ class CreateUserView(generics.CreateAPIView):
             message=f"""
             Hi {user.first_name}, 
 
-            Welcome to **Roadtrip Mate** — your new travel buddy for planning unforgettable road trips across the UK!
-
-            Please verify your email to activate your account:  https://to be made
-
+            Welcome to Roadtrip Mate — your new travel buddy for planning unforgettable road trips across the UK!
 
             Happy travels,
             – The Roadtrip Mate Team 🚐💨""",
@@ -111,13 +123,10 @@ class DeleteAccountView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TripDetailView(RetrieveAPIView):
+class TripDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
-
-    def get(self, request, *args, **kwargs):
-        print(f"TripDetailView: Trip ID = {kwargs.get('pk')}")
-        return super().get(request, *args, **kwargs)
+    permission_classes = [IsAuthenticated]
 
 class RouteListCreate(generics.ListCreateAPIView):
     serializer_class = RouteSerializer
@@ -138,11 +147,11 @@ class RouteListCreate(generics.ListCreateAPIView):
             route, created = Route.objects.update_or_create(
                 trip=trip,
                 defaults={
-                    "startLocation": self.request.data.get("startLocation"),
+                    "start_location": self.request.data.get("start_location"),
                     "destination": self.request.data.get("destination"),
                     "distance": self.request.data.get("distance"),
                     "duration": self.request.data.get("duration"),
-                    "routePath": self.request.data.get("routePath"),
+                    "route_path": self.request.data.get("route_path"),
                 },
             )
             if created:
@@ -156,6 +165,18 @@ class RouteDetailView(generics.RetrieveAPIView):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
     permission_classes = [IsAuthenticated]
+
+class RouteByTripIdView(generics.RetrieveAPIView):
+    serializer_class = RouteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        trip_id = self.kwargs.get('trip_id')
+        try:
+            return Route.objects.get(trip_id=trip_id)
+        except Route.DoesNotExist:
+            raise serializers.ValidationError("Route not found")
+
 
 class AddPitstopView(APIView):
     permission_classes = [IsAuthenticated]
@@ -210,7 +231,7 @@ class UpdateRouteView(generics.UpdateAPIView):
             # Update the route details
             route.distance = request.data.get("distance", route.distance)
             route.duration = request.data.get("duration", route.duration)
-            route.routePath = request.data.get("routePath", route.routePath)
+            route.route_path = request.data.get("route_path", route.route_path)
             route.pitstops = request.data.get("pitstops", route.pitstops)
             route.save()
 
@@ -285,8 +306,22 @@ class TripCollaboratorsView(APIView):
                 )
             
             trip.collaborators.add(user_to_add)
+            send_mail(
+                subject=f"You've been added to a trip on Roadtrip Mate!",
+                message=(
+                    f"Hi {user_to_add.first_name},\n\n"
+                    f"You’ve been added as a collaborator to the trip \"{trip.title}\" "
+                    f"by {trip.author.first_name} {trip.author.last_name}.\n\n"
+                    "Log in to view and help plan the route:\n"
+                    "Happy travels! 🚗💨"
+                    ),
+                    from_email=None,
+                    recipient_list=[user_to_add.email],
+                    fail_silently=False,
+            )
+            
             return Response(
-                {'status': 'success', 'message': 'Collaborator added successfully'},
+                {'status': 'success', 'message': 'Collaborator added and notified via email'},
                 status=200
             )
         except RoadtripUser.DoesNotExist:

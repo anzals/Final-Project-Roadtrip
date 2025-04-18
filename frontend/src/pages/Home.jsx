@@ -17,18 +17,18 @@ function Home({ trips, getTrips }) {
     today.setHours(0, 0, 0, 0);
 
     // Sort trips by date
-    const validTrips = trips.filter(trip => trip.tripDate); // make sure tripDate exists
-    const sortedTrips = [...validTrips].sort((a, b) => new Date(a.tripDate) - new Date(b.tripDate)
+    const validTrips = trips.filter(trip => trip.trip_date); // make sure trip_date exists
+    const sortedTrips = [...validTrips].sort((a, b) => new Date(a.trip_date) - new Date(b.tripDate)
 );
 
 const upcomingTrips = sortedTrips.filter((trip) => {
-    const tripDate = new Date(trip.tripDate);
+    const tripDate = new Date(trip.trip_date);
     tripDate.setHours(0, 0, 0, 0);
     return tripDate >= today;
 });
 
 const pastTrips = sortedTrips.filter((trip) => {
-    const tripDate = new Date(trip.tripDate);
+    const tripDate = new Date(trip.trip_date);
     tripDate.setHours(0, 0, 0, 0);
     return tripDate < today;
 });
@@ -80,7 +80,7 @@ const pastTrips = sortedTrips.filter((trip) => {
             <div className="home-content">
                 <div className="title-container">
                     <span className="introduction-text">Welcome back, {firstName}!</span>
-                    <p className="adventure-tag">Ready for your next adventure?</p>
+                    <p className="adventure-tag">Ready for your next adventure, around the UK?</p>
                     <Link to="/plan-trip">
                         <button>+ Plan a Trip</button>
                     </Link>
@@ -100,7 +100,7 @@ const pastTrips = sortedTrips.filter((trip) => {
 
                     {pastTrips.length > 0 && (
                         <div className="past-trips-toggle">
-                            <button onClick={() => setShowPast(!showPast)}>
+                            <button className="toggle-past-btn" onClick={() => setShowPast(!showPast)}>
                                 {showPast ? "Hide Past Trips" : "Show Past Trips"}
                             </button>
                             {showPast && (

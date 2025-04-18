@@ -1,0 +1,104 @@
+.trip-summary-page {
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: white;
+    padding: 30px;
+    border: 5px solid #8ab4b3;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .trip-summary-page h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #207d86;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .trip-summary-page h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #111;
+  }
+  
+  .trip-summary-page p,
+  .trip-summary-page li {
+    font-size: 16px;
+    color: #333;
+    margin: 8px 0;
+  }
+  
+  .trip-summary-page ul {
+    list-style: disc inside;
+    padding-left: 1rem;
+    margin-top: 8px;
+  }
+  
+  .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .button-group button {
+    flex: 1 1 40%;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 25px;
+    background-color: #1e293b;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+  }
+  
+  .button-group button:hover {
+    background-color: #334155;
+  }
+  
+  @media print {
+    header, footer, .button-group {
+      display: none !important;
+    }
+  
+    body {
+      background: white !important;
+    }
+  
+    .trip-summary-page {
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      max-width: 100%;
+    }
+  
+    .trip-summary-page h2 {
+      font-size: 20pt;
+      margin-top: 0;
+      color: black;
+    }
+  
+    .trip-summary-page p,
+    .trip-summary-page li {
+      font-size: 12pt;
+      color: black;
+    }
+  
+    ul {
+      margin-left: 1rem;
+    }
+  
+    @page {
+      margin: 1in;
+    }
+  }
+  
+  

@@ -10,6 +10,8 @@ import AddPitstop from "./pages/AddPitstop";
 import UpdateRoute from "./pages/UpdateRoute";
 import PetrolCalculator from "./pages/PetrolCalculator";
 import Profile from "./pages/Profile";
+import EditTrip from "./pages/EditTrip";
+import TripSummary from "./pages/TripSummary";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import api from "./api";
@@ -102,6 +104,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/trip/:id/edit" 
+          element={
+            <ProtectedRoute>
+              <EditTrip />
+            </ProtectedRoute>
+          } 
+        />
+        <Route
+          path="/trip/:id/summary"
+          element={
+            <ProtectedRoute>
+              <TripSummary />
             </ProtectedRoute>
           } 
         />
