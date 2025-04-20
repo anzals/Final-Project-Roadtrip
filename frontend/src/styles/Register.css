@@ -2,16 +2,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
-    background-color: #f8f9fa;
 }
 
 .register-container {
-    flex-grow: 1;
     display: flex;
-    align-items: center;
     justify-content: center;
-    width: 100%;
+    align-items: center;
+    padding: 2rem;
+    max-width: 100%;
 }
 
 .register-form {

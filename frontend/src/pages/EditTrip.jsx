@@ -3,8 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useLoadScript } from "@react-google-maps/api";
 import AutocompleteInput from "../components/AutocompleteInput";
 import api from "../api";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Layout from "../components/Layout";
 import "../styles/EditTrip.css";
 
 function EditTrip() {
@@ -20,6 +19,8 @@ function EditTrip() {
     const [setDestinationPlaceDetails] = useState(null);
     const LIBRARIES = ["places"]; 
     const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState(null);
+
 
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -33,9 +34,9 @@ function EditTrip() {
                 const res = await api.get(`/api/trips/${id}/`);
                 setTrip(res.data);
                 setTitle(res.data.title);
-                setStartLocation(res.data.startLocation);
+                setStartLocation(res.data.start_location);
                 setDestination(res.data.destination);
-                setTripDate(res.data.tripDate);
+                setTripDate(res.data.trip_date);
                 setLoading(false);
             } catch (err) {
                 console.error("Failed to fetch trip:", err);
@@ -52,7 +53,7 @@ function EditTrip() {
                 destination,
                 tripDate,
             });
-            alert("Trip updated successfully!");
+            setMessage({ type: "success", text: "Trip updated successfully!" });
     
             // Check if the route exists
             try {
@@ -86,8 +87,7 @@ function EditTrip() {
     if (loading) return <div>Loading trip...</div>;
 
     return (
-        <div>
-            <Header />
+        <Layout>
             <div className="plan-trip-form">
                 <h2>Edit Trip</h2>
 
@@ -129,8 +129,7 @@ function EditTrip() {
                     <button onClick={() => navigate(-1)}>Cancel</button>
                 </div>
             </div>
-            <Footer />
-        </div>
+        </Layout>
     );
 }
 

@@ -14,6 +14,7 @@ function Form({ route, method }) {
     const [lastName, setLastName] = useState("");   
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const name = method === "login" ? "Login" : "Register";
@@ -22,32 +23,31 @@ function Form({ route, method }) {
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
-
         setFormError("");
     
         const userData = { email, password };
-
-        if (method === "register" && (!firstName || !lastName || !email || !password)) {
-            setFormError("All fields are required.");
-            setLoading(false);
-            return;
-        }    
-        
-        if (!validateEmail(email)) {
-            setFormError("Please enter a valid email address.");
-            return;
-        }
     
-        if (method === "register") {  
-
-            if (method === "register" && password.length < 8) {
+        if (method === "register") {
+            if (!firstName || !lastName || !email || !password) {
+                setFormError("All fields are required.");
+                setLoading(false);
+                return;
+            }
+    
+            if (password.length < 8) {
                 setFormError("Password must be at least 8 characters long.");
                 setLoading(false);
                 return;
             }
-            
+    
             userData.first_name = firstName;
             userData.last_name = lastName;
+        }
+    
+        if (!validateEmail(email)) {
+            setFormError("Please enter a valid email address.");
+            setLoading(false);
+            return;
         }
     
         try {
@@ -63,27 +63,39 @@ function Form({ route, method }) {
                     },
                 });
     
-                // Save user's first name in local storage
                 localStorage.setItem("firstName", profileRes.data.first_name);
-    
                 navigate("/");
             } else {
                 navigate("/login");
             }
+    
         } catch (error) {
-            const serverMessage = error.response?.data?.detail;
-
+            let serverMessage = error.response?.data?.detail || error.response?.data?.error;
+        
+            // If no direct detail, check for field-specific errors like { email: [...] }
+            if (!serverMessage && error.response?.data) {
+                const errorData = error.response.data;
+                const firstKey = Object.keys(errorData)[0];
+                const firstError = Array.isArray(errorData[firstKey]) ? errorData[firstKey][0] : errorData[firstKey];
+        
+                serverMessage = firstError;
+            }
+        
             if (method === "login" && serverMessage) {
-                setFormError("Invalid email or password.");
-            } else if (method === "register" && serverMessage?.includes("already exists")) {
+                setFormError("Invalid email and/or password.");
+            } else if (method === "register" && serverMessage?.toLowerCase().includes("already exists")) {
                 setFormError("An account with this email already exists.");
+            } else if (serverMessage) {
+                setFormError(serverMessage);
             } else {
                 setFormError("Something went wrong. Please try again.");
             }
+    
         } finally {
             setLoading(false);
         }
     };
+    
     
     
 
@@ -130,14 +142,23 @@ function Form({ route, method }) {
                             placeholder="Email"
                             required
                         />
-                        <input
-                            className="form-input"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Password"
-                            required
-                        />
+                        <div className="password-toggle-container">
+  <input
+    className="form-input"
+    type={showPassword ? "text" : "password"}
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    placeholder="Password"
+    required
+  />
+  <span
+    className="toggle-password"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+    {showPassword ? "Hide" : "Show"}
+  </span>
+</div>
+
                         {loading && <LoadingIndicator />}
                         <button className="form-button" type="submit">{name}</button>
                     </form>

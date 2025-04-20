@@ -15,6 +15,8 @@ function PlanTrip({ addTrip }) {
     const [tripDate, setTripDate] = useState("");  
     const [startPlaceDetails, setStartPlaceDetails] = useState(null);
     const [destinationPlaceDetails, setDestinationPlaceDetails] = useState(null);
+    const [formError, setFormError] = useState("");
+
     const navigate = useNavigate();
 
     const { isLoaded } = useLoadScript({
@@ -27,32 +29,35 @@ function PlanTrip({ addTrip }) {
 
     const createTrip = (e) => {
         e.preventDefault();
+        setFormError("");  // clear previous error
     
         if (!startPlaceDetails || !destinationPlaceDetails) {
-            alert("Please select valid locations from the suggestions.");
+            setFormError("Please select valid locations from the suggestions.");
             return;
         }
-
+    
         const newTrip = {
             title,
             start_location: startPlaceDetails.formatted_address,
             destination: destinationPlaceDetails.formatted_address,
             trip_date: tripDate,
         };
-        
+    
         api.post("/api/trips/", newTrip)
             .then((res) => {
                 if (res.status === 201) {
-                    alert("Trip created!");
                     addTrip(res.data); 
-    
                     navigate(`/trip/${res.data.id}`);
                 } else {
-                    alert("Failed to create trip.");
+                    setFormError("Failed to create trip.");
                 }
             })
-            .catch((err) => alert(err));
+            .catch((err) => {
+                setFormError("An error occurred. Please try again.");
+                console.error(err);
+            });
     };
+    
     
 
     const goToHome = () => {
@@ -90,19 +95,19 @@ function PlanTrip({ addTrip }) {
                         onChange={setDestination}
                         setPlaceDetails={setDestinationPlaceDetails}
                     />
-                
-                    <input
+                    
+                    <div className="date-wrapper">
+                        <input
                         type="date"
                         value={tripDate}
-                        min={new Date().toISOString().split("T")[0]}  // Restrict to today and future
-                        onFocus={(e) => (e.target.min = new Date().toISOString().split("T")[0])} 
+                        min={new Date().toISOString().split("T")[0]}
+                        onFocus={(e) => (e.target.min = new Date().toISOString().split("T")[0])}
                         onChange={(e) => setTripDate(e.target.value)}
                         required
-                        title="Select a future date"
-                    />
-
-
-
+                        />
+                        <small className="input-helper">Select the date your road trip begins.</small>
+                    </div>
+                    {formError && <div className="form-error">{formError}</div>}
                     <button type="submit" className="save-trip-button">
                         Save Trip
                     </button>

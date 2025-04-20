@@ -18,7 +18,7 @@ function Home({ trips, getTrips }) {
 
     // Sort trips by date
     const validTrips = trips.filter(trip => trip.trip_date); // make sure trip_date exists
-    const sortedTrips = [...validTrips].sort((a, b) => new Date(a.trip_date) - new Date(b.tripDate)
+    const sortedTrips = [...validTrips].sort((a, b) => new Date(a.trip_date) - new Date(b.trip_date)
 );
 
 const upcomingTrips = sortedTrips.filter((trip) => {
@@ -91,11 +91,14 @@ const pastTrips = sortedTrips.filter((trip) => {
                     <div className="trip-container">
                         {upcomingTrips.length > 0 ? (
                             upcomingTrips.map((trip) => (
-                                <Trip trip={trip} key={trip.id} onDelete={deleteTrip} currentUserId={userId} />
-                            ))
-                        ) : (
-                            <p>No upcoming trips. Plan one now!</p>
-                        )}
+                            <Trip trip={trip} key={trip.id} onDelete={deleteTrip} currentUserId={userId} />
+                        ))
+                    ) : (
+                    <div className="no-trips-message">
+                        <p>No upcoming trips. Plan one now!</p>
+                    </div>
+                )}
+
                     </div>
 
                     {pastTrips.length > 0 && (

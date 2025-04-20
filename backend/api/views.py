@@ -12,22 +12,21 @@ import json
 from django.core.mail import send_mail
 from django.db import models
 
-
+# Lists all trips the user owns or collaborates on, and allows the creation of a new trip.
 class TripListCreate(generics.ListCreateAPIView):
     serializer_class = TripSerializer
     permission_classes = [IsAuthenticated]  # Ensures only logged-in users can access
 
+    # Filters trips where the user is the author or a collaborator of a trip
     def get_queryset(self):
         user = self.request.user
-        return Trip.objects.filter(models.Q(author=user) | models.Q(collaborators=user)).distinct() # Users can see their own trips and trip that they were added as collaborators
-
+        return Trip.objects.filter(models.Q(author=user) | models.Q(collaborators=user)).distinct()
+    
+    # Automatically assigns logged-in user as author
     def perform_create(self, serializer):
-        #if serializer.is_valid():
-            serializer.save(author=self.request.user)  # Automatically assigns logged-in user as author
-        #else:
-         #   print(serializer.errors)
+            serializer.save(author=self.request.user)  
 
-
+# Deletes a trip completely if the user is the author, removes it from their view if they are a collaborator.
 class TripDelete(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -51,7 +50,7 @@ class TripDelete(APIView):
             return Response({"error": str(e)}, status=500)
 
 
-
+# Allows anyone to register an account and sends a welcome email
 class CreateUserView(generics.CreateAPIView):
     queryset = RoadtripUser.objects.all()  # Creates a user using the custom RoadtripUser model
     serializer_class = UserSerializer
@@ -66,7 +65,8 @@ class CreateUserView(generics.CreateAPIView):
             message=f"""
             Hi {user.first_name}, 
 
-            Welcome to Roadtrip Mate — your new travel buddy for planning unforgettable road trips across the UK!
+            Welcome to Roadtrip Mate!
+            We are here to help you plan unforgettable road trips across the UK.
 
             Happy travels,
             – The Roadtrip Mate Team 🚐💨""",
@@ -75,7 +75,7 @@ class CreateUserView(generics.CreateAPIView):
             fail_silently=False,
         )
 
-
+# Users can view or update their own profile information.
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -96,6 +96,7 @@ class UserProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# After verifying their current password, users can change their password.
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -114,6 +115,7 @@ class ChangePasswordView(APIView):
         user.save()
         return Response({"message": "Password updated successfully!"}, status=status.HTTP_200_OK)
     
+# Permenantly deletes user's account.
 class DeleteAccountView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -122,12 +124,13 @@ class DeleteAccountView(APIView):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
+# Authenticated users can retrieve, update or delete a trip by Id.
 class TripDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
     permission_classes = [IsAuthenticated]
 
+# Lists all the routes where the user is trip author. Also allows creating or updating a route for a trip.
 class RouteListCreate(generics.ListCreateAPIView):
     serializer_class = RouteSerializer
     permission_classes = [IsAuthenticated]
@@ -233,6 +236,9 @@ class UpdateRouteView(generics.UpdateAPIView):
             route.duration = request.data.get("duration", route.duration)
             route.route_path = request.data.get("route_path", route.route_path)
             route.pitstops = request.data.get("pitstops", route.pitstops)
+            route.petrol_cost = request.data.get("petrol_cost", route.petrol_cost)
+            route.passenger_shares = request.data.get("passenger_shares", route.passenger_shares)
+
             route.save()
 
             return Response({"message": "Route updated successfully"}, status=status.HTTP_200_OK)
@@ -326,7 +332,7 @@ class TripCollaboratorsView(APIView):
             )
         except RoadtripUser.DoesNotExist:
             return Response(
-                {'detail': 'User not found'},
+                {'detail': 'User not found.'},
                 status=404
             )
 

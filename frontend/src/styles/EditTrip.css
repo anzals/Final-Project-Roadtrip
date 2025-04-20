@@ -1,6 +1,6 @@
 .plan-trip-form {
   max-width: 800px;
-  margin: 40px auto;
+  margin: 40px 0px;
   padding: 30px;
   background-color: white;
   border: 5px solid #8ab4b3;
@@ -29,7 +29,7 @@
 .plan-trip-form input[type="text"],
 .plan-trip-form input[type="date"],
 .plan-trip-form input[type="search"] {
-  width: 100%;
+  width: 90%;
   padding: 12px;
   font-size: 1rem;
   border: 1px solid #ccc;

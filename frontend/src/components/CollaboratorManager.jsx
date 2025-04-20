@@ -47,10 +47,24 @@ function CollaboratorManager({ tripId }) {
   }, [tripId]);
 
   const handleAddCollaborator = async () => {
+    if (state.collaborators.length >= 5) {
+      setMessage({ text: "You can only have up to 5 collaborators.", type: "error" });
+      return;
+    }
+    
     if (!validateEmail(email)) {
       setMessage({ text: "Please enter a valid email address.", type: "error" });
       return;
     }
+
+    if (
+      state.owner?.email &&
+      email.trim().toLowerCase() === state.owner.email.toLowerCase()
+    ) {
+      setMessage({ text: "You cannot add yourself as a collaborator.", type: "error" });
+      return;
+    }
+    
 
     setMessage({ text: "Adding...", type: "info" });
     setState(prev => ({ ...prev, loading: true }));
@@ -68,6 +82,17 @@ function CollaboratorManager({ tripId }) {
       setState(prev => ({ ...prev, loading: false }));
     }
   };
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null);
+      }, 3000); // disappear after 3 seconds
+  
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+  
 
   if (state.loading) return <div className="loading-spinner">Loading...</div>;
   if (state.error) return <div className="error-alert">Error: {state.error}</div>;

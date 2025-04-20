@@ -25,6 +25,8 @@ class Route(models.Model):
     duration = models.CharField(max_length=50)  
     route_path = models.JSONField(default=list)  # better as a JSONField for waypoints allows for better performance
     pitstops = models.JSONField(default=list)
+    petrol_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    passenger_shares = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)  
     updated_at = models.DateTimeField(auto_now=True)  
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import CollaboratorManager from "../components/CollaboratorManager";
+import Layout from "../components/Layout"
 import Header from "../components/Header";
 import "../styles/TripDetails.css";
 
@@ -39,7 +40,6 @@ function TripDetails() {
 
     return (
         <>
-            <Header />
             <div className="trip-details-wrapper">
                 <div className="trip-details-container">
                     <h2 className="trip-title">{trip.title}</h2>
@@ -53,21 +53,21 @@ function TripDetails() {
                         currentUserId={userId}
                         tripAuthorId={trip.author.id}
                     />
-
-<div className="trip-buttons">
-                    <button
+                    
+                    <div className="trip-buttons">
+                        <button
                         className="generate-route"
                         onClick={() =>
                             navigate(trip.has_route ? `/route/${trip.id}/update-route` : `/route/${trip.id}`)
                         }
-                    >
-                        {trip.has_route ? "View Route" : "Generate Route"}
-                    </button>
+                        >
+                            {trip.has_route ? "View Route" : "Generate Route"}
+                        </button>
 
-                    <button className="back-button" onClick={() => navigate("/")}>
-                        Return to Dashboard
-                    </button>
-                </div>
+                        <button className="back-button" onClick={() => navigate("/")}>
+                            Return to Dashboard
+                        </button>
+                    </div>
                 </div>
             </div>
         </>

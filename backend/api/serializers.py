@@ -24,14 +24,20 @@ class UserSerializer(serializers.ModelSerializer):
         user = RoadtripUser.objects.create_user(**validated_data)  
         return user
 
+class CollaboratorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoadtripUser
+        fields = ['id', 'email', 'first_name', 'last_name']
+
 class TripSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
+    collaborators = CollaboratorSerializer(many=True, read_only=True)
     has_route = serializers.SerializerMethodField()
     has_updated_route = serializers.SerializerMethodField()
 
     class Meta:
         model = Trip
-        fields = ["id", "title", "start_location", "destination", "trip_date", "created_at", "author", "has_route", "has_updated_route"]
+        fields = ["id", "title", "start_location", "destination", "trip_date", "created_at", "author", "collaborators", "has_route", "has_updated_route"]
         extra_kwargs = {"author": {"read_only": True}} # Ensures author is set automatically
     
     def get_has_route(self, obj):
@@ -47,8 +53,12 @@ class TripSerializer(serializers.ModelSerializer):
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = ["trip", "start_location", "destination", "distance", "duration", "route_path", "pitstops", "created_at", "updated_at"]
-        extra_kwargs = {"route_path": {"required": False}}  # Allow the pitstop list to be empty
+        fields = ["trip", "start_location", "destination", "distance", "duration", "route_path", "pitstops", "petrol_cost", "passenger_shares", "created_at", "updated_at"]
+        extra_kwargs = {
+            "route_path": {"required": False}, 
+            "pitstops": {"required": False},
+            "passenger_shares": {"required": False},
+            "petrol_cost": {"required": False}}  
 
 class LoginSerializerWithFeedback(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -62,8 +72,3 @@ class LoginSerializerWithFeedback(TokenObtainPairSerializer):
             raise AuthenticationFailed("Invalid login credentials.")
 
         return super().validate(attrs)
-
-class CollaboratorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RoadtripUser
-        fields = ['id', 'email', 'first_name', 'last_name']

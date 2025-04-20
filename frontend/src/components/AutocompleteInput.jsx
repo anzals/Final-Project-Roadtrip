@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Autocomplete } from "@react-google-maps/api";
+import api from "../api";
 
 function AutocompleteInput({ id, placeholder, value, onChange, setPlaceDetails }) {
     const [autocomplete, setAutocomplete] = useState(null);

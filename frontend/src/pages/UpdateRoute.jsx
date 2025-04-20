@@ -1,6 +1,7 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLoadScript } from "@react-google-maps/api";
+import { kmToMiles, metersToMiles } from "../utils/convert";
 import api from "../api";
 import MapDisplay from "../components/MapDisplay";
 import Layout from "../components/Layout";
@@ -9,6 +10,13 @@ import "../styles/MapDisplay.css";
 
 
 const LIBRARIES = ["places"];
+
+function formatDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.round((seconds % 3600) / 60);
+    return `${hours > 0 ? hours + " hrs " : ""}${minutes} mins`;
+}
+
 
 function UpdateRoute() {
     const { id} = useParams();  
@@ -33,10 +41,12 @@ function UpdateRoute() {
         async function fetchData() {
             try {
                 const tripRes = await api.get(`/api/trips/${id}/`);
-                setTrip(tripRes.data);
-    
                 const routeRes = await api.get(`/api/routes/${id}/`);
                 let pitstopsData = routeRes.data.pitstops;
+                setTrip({
+                    ...tripRes.data,
+                    route: routeRes.data, // attach route info (includes petrol_cost and passenger_shares)
+                  });
     
                 if (typeof pitstopsData === "string") {
                     try {
@@ -75,12 +85,11 @@ function UpdateRoute() {
                                 const legs = result.routes[0].legs;
                                 const totalDistance = legs.reduce((acc, leg) => acc + leg.distance.value, 0);
                                 const totalDuration = legs.reduce((acc, leg) => acc + leg.duration.value, 0);
-                                setDistance((totalDistance / 1000).toFixed(2) + " km");
+                                setDistance(metersToMiles(totalDistance) + " mi");
                                 const hours = Math.floor(totalDuration / 3600);
                                 const minutes = Math.round((totalDuration % 3600) / 60);
                                 const formattedDuration = `${hours > 0 ? hours + " hrs " : ""}${minutes} mins`;
-                                setDuration(formattedDuration);
-
+                                setDuration(formatDuration(totalDuration));
                             } else {
                                 console.error("Error calculating route from saved path:", status);
                             }
@@ -138,11 +147,8 @@ function UpdateRoute() {
                     const totalDistance = legs.reduce((acc, leg) => acc + leg.distance.value, 0);
                     const totalDuration = legs.reduce((acc, leg) => acc + leg.duration.value, 0);
     
-                    setDistance((totalDistance / 1000).toFixed(2) + " km");
-    
-                    const hours = Math.floor(totalDuration / 3600);
-                    const minutes = Math.round((totalDuration % 3600) / 60);
-                    setDuration(`${hours > 0 ? hours + " hrs " : ""}${minutes} mins`);
+                    setDistance(metersToMiles(totalDistance) + " mi");
+                    setDuration(formatDuration(totalDuration));
                 } else {
                     console.error("Error calculating route:", status);
                 }
@@ -194,6 +200,7 @@ function UpdateRoute() {
               <div className="route-summary-panel">
                 <h2>{trip?.title}</h2>
                 <h4 className="trip-subtitle">Road Trip to {trip?.destination?.split(",")[0]}</h4>
+                <h4>{trip.trip_date}</h4>
                 {trip && directions && (
                   <div className="stops-timeline">
                     {[trip.start_location, ...pitstops, trip.destination].map((stop, index, arr) => (
@@ -202,8 +209,8 @@ function UpdateRoute() {
                         {index < arr.length - 1 && legs[index] && (
                           <div className="segment-info-line">
                             <div className="segment-info-text">
-                              <span>Distance: {(legs[index].distance.value / 1000).toFixed(2)} km</span><br />
-                              <span>Duration: {Math.round(legs[index].duration.value / 60)} mins</span>
+                                <span>Distance: {metersToMiles(legs[index].distance.value)} mi</span><br />
+                                <span>Duration: {formatDuration(legs[index].duration.value)}</span>
                             </div>
                           </div>
                         )}
@@ -216,12 +223,53 @@ function UpdateRoute() {
                   <p><strong>Total Distance:</strong> {distance}</p>
                   <p><strong>Total Duration:</strong> {duration}</p>
                 </div>
+
+                {trip?.route?.petrol_cost && (
+                    <div className="petrol-summary-box">
+                        <h4>Petrol Cost</h4>
+                        <p><strong>Total Cost:</strong> £{Number(trip.route.petrol_cost).toFixed(2)}</p>
+                        {trip.route.passenger_shares?.length > 0 && (
+                            <div className="share-list">
+                                {trip.route.passenger_shares.map((person, index) => {
+                                    const displayName = person.name && person.name !== "undefined undefined"
+                                    ? person.name
+                                    : `Passenger ${index + 1}`;                                  
+                                    return (
+                                    <p key={index}>
+                                        {displayName} — £{Number(person.share).toFixed(2)}
+                                    </p>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        <p className="recalc-hint">
+                            <span
+                            className="recalc-link"
+                            onClick={() => navigate(`/route/${id}/petrol-calculator`)}
+                            >
+                                Recalculate or Edit
+                            </span>
+                        </p>
+                    </div>
+                )}
+
       
                 <div className="route-buttons">
-                  <button onClick={editPitstops}>Edit Pitstops</button>
-                  <button onClick={() => navigate(`/route/${id}/petrol-calculator`, { state: { distance } })}>
-                    Estimate Petrol Cost
-                  </button>
+                    <button onClick={editPitstops}>Edit Pitstops</button>
+                    <button
+                    onClick={() =>
+                        navigate(`/route/${id}/petrol-calculator`, {
+                            state: {
+                                distance,
+                                collaborators: trip.collaborators,
+                                owner: trip.author,
+                            },
+                        })
+                    }
+                    >
+                        Estimate Petrol Cost
+                    </button>
+
                   <button className="collab-button" onClick={() => navigate(`/trip/${id}`)}>
                     Manage Collaborators
                   </button>

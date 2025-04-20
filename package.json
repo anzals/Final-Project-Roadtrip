@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@hello-pangea/dnd": "^18.0.1"
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.0"
-  }
-}

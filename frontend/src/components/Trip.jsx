@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { FaTrash, FaEdit } from "react-icons/fa";
+import api from "../api";
 import "../styles/Trip.css"
 
 function Trip({ trip, onDelete, currentUserId }) {

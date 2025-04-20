@@ -23,6 +23,9 @@ function AddPitstop() {
     const [maxDistanceKm, setMaxDistanceKm] = useState(5); 
     const [suggestedPlaces, setSuggestedPlaces] = useState([]);
     const [hasReordered, setHasReordered] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [pitstopPlaceDetails, setPitstopPlaceDetails] = useState(null);
 
 
     const navigate = useNavigate();
@@ -102,7 +105,15 @@ function AddPitstop() {
     };
 
     const addPitstop = async () => {
-        if (!pitstop) return;
+
+        if (!pitstopPlaceDetails) {
+            setErrorMessage("Please select a valid location from the suggestions.");
+            return;
+          }
+        if (selectedPitstops.length >= 5) {
+            setErrorMessage("You can only add up to 5 pitstops.");
+            return;
+          }          
         try {
             // Add the new pitstop to the existing ones
             const updatedPitstops = [...selectedPitstops, pitstop];
@@ -116,17 +127,34 @@ function AddPitstop() {
             if (response.status === 200) {
                 setSelectedPitstops(updatedPitstops);
                 setPitstop("");
-                alert("Pitstop added successfully!");
             }
         } catch (error) {
             console.error("Error adding pitstop:", error);
-            alert("Error adding pitstop.");
+            setErrorMessage("Error adding pitstop.");
         }
     };
 
-    const addSuggestedPitstop = async (pitstopName) => {
+    const categoryEmojis = {
+        restaurant: "🍽️",
+        lodging: "🏨",
+        restroom: "🚻",
+        gas_station: "⛽",
+        charging_station: "🔌",
+    };
+
+    const addSuggestedPitstop = async (place) => {
+        const name = `${place.name} - ${place.vicinity}`;
+        const label = place._category.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()); // Format: "gas_station" → "Gas Station"
+        const emoji = categoryEmojis[place._category] || "📍";
+        const fullName = `${emoji} ${name}`;
+
+        if (selectedPitstops.length >= 5) {
+            setErrorMessage("You can only add up to 5 pitstops.");
+            return;
+          }
+
         try {
-            const updatedPitstops = [...selectedPitstops, pitstopName];
+            const updatedPitstops = [...selectedPitstops, fullName];
     
             const response = await api.patch(`/api/routes/${id}/update/`, {
                 pitstops: updatedPitstops,
@@ -136,11 +164,10 @@ function AddPitstop() {
     
             if (response.status === 200) {
                 setSelectedPitstops(updatedPitstops);
-                alert("Pitstop added successfully!");
             }
         } catch (error) {
             console.error("Error adding suggested pitstop:", error);
-            alert("Error adding pitstop.");
+            setErrorMessage("Error adding suggested pitstop.");
         }
     };
     
@@ -156,13 +183,12 @@ function AddPitstop() {
     
             if (response.status === 200) {
                 setSelectedPitstops(selectedPitstops.filter(p => p !== pitstop));
-                alert("Pitstop removed successfully!");
             } else {
-                alert("Failed to remove pitstop.");
+                setErrorMessage("Failed to remove pitstop.");
             }
         } catch (error) {
             console.error("Error removing pitstop:", error);
-            alert("Error removing pitstop.");
+            setErrorMessage("Error removing pitstop.");
         }
     };
 
@@ -189,10 +215,9 @@ function AddPitstop() {
             });
     
             if (response.status === 200) {
-                alert("Pitstops reordered successfully!");
                 navigate(`/route/${id}/update-route`, { state: { reorderedPitstops: pitstops } });
             } else {
-                alert("Failed to save reordered pitstops.");
+                setErrorMessage("Failed to reorder pitstops.");
             }
         } catch (error) {
             console.error("Error saving reordered pitstops:", error);
@@ -237,18 +262,18 @@ function AddPitstop() {
                         });
     
                         if (response.status === 200) {
-                            alert("Route updated successfully!");
+                            setSuccessMessage("Route updated successfully!");
                             navigate(`/route/${id}/update-route`, { state: { reorderedPitstops: hasReordered ? finalPitstops : null } });
                         } else {
-                            alert("Failed to update route.");
+                            setErrorMessage("Failed to update route.");
                         }
                     } catch (error) {
                         console.error("Error updating route:", error);
-                        alert("Error updating route.");
+                        setErrorMessage("Error updating route.");
                     }
                 } else {
                     console.error("Error calculating route:", status);
-                    alert("Error calculating route.");
+                    setErrorMessage("Error calculating route.");
                 }
             }
         );
@@ -258,9 +283,11 @@ function AddPitstop() {
 
     const searchNearbyPlaces = () => {
         if (!directions || !categoryFilters.length) return;
+
+        setSuggestedPlaces([]);
     
         const path = directions.routes[0].overview_path;
-        const sampledPoints = path.filter((_, index) => index % 10 === 0); // Every 10th point
+        const sampledPoints = path.filter((_, index) => index % 20 === 0); // Every 20th point
     
         const service = new window.google.maps.places.PlacesService(document.createElement("div"));
         const allResults = [];
@@ -280,50 +307,116 @@ function AddPitstop() {
                     completedRequests++;
     
                     if (status === "OK" && results.length) {
-                        const topResults = results.slice(0, 3); // Only show top 3 results
+                        const topResults = results
+                        .filter(result => result.business_status === "OPERATIONAL")
+                        .slice(0, 3)
+                        .map(result => ({
+                            ...result,
+                            _category: type,
+                        }));
+
                         allResults.push(...topResults);
-                      }                      
+                    }
+                                         
     
                     if (completedRequests === sampledPoints.length * categoryFilters.length) {
-                        const unique = Array.from(new Map(allResults.map(p => [p.place_id, p])).values());
-                        setSuggestedPlaces(unique);
+                        const groupedByCategory = {};
+
+allResults.forEach((result) => {
+    if (!groupedByCategory[result._category]) {
+        groupedByCategory[result._category] = [];
+    }
+    // avoid duplicates per category
+    if (!groupedByCategory[result._category].some(p => p.place_id === result.place_id)) {
+        groupedByCategory[result._category].push(result);
+    }
+});
+
+// Flatten into one array
+const combined = Object.values(groupedByCategory).flat();
+setSuggestedPlaces(combined);
+
                     }
                 });
             });
         });
     };
+
+    useEffect(() => {
+        if (successMessage || errorMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage("");
+                setErrorMessage("");
+            }, 3000); // 3 seconds
+    
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage, errorMessage]);
+    
     
 
     return (
         <Layout>
             <div className="add-pitstop-page">
+                {successMessage && <div className="form-success">{successMessage}</div>}
+                {errorMessage && <div className="form-error">{errorMessage}</div>}
                 <div className="pitstop-layout">
                     <div className="pitstop-controls">
                         <h2>Add Pitstops</h2>
                         <div className="control-group">
                             <h4>Discover Nearby</h4>
-                            <label><input type="checkbox" value="restaurant" checked={categoryFilters.includes("restaurant")} onChange={() => toggleCategory("restaurant")} /> Restaurants</label>
-                            <label><input type="checkbox" value="lodging" checked={categoryFilters.includes("lodging")} onChange={() => toggleCategory("lodging")} /> Hotels</label>
-                            <label><input type="checkbox" value="restroom" checked={categoryFilters.includes("restroom")} onChange={() => toggleCategory("restroom")} /> Toilets</label>
-                            <label><input type="checkbox" value="gas_station" checked={categoryFilters.includes("gas_station")} onChange={() => toggleCategory("gas_station")} /> Petrol Stations</label>
-                            <label><input type="checkbox" value="charging_station" checked={categoryFilters.includes("charging_station")} onChange={() => toggleCategory("charging_station")} /> EV Chargers</label>
+                            <label className="filter-bubble restaurant">
+                                <input type="checkbox" value="restaurant" checked={categoryFilters.includes("restaurant")} onChange={() => toggleCategory("restaurant")} />
+                                <span className="filter-label-text">Restaurants</span>
+                            </label>
+                                
+                            <label className="filter-bubble lodging">
+                                <input type="checkbox" value="lodging" checked={categoryFilters.includes("lodging")} onChange={() => toggleCategory("lodging")} />
+                                <span className="filter-label-text">Hotels</span>
+                            </label>
+                                
+                            <label className="filter-bubble restroom">
+                                <input type="checkbox" value="restroom" checked={categoryFilters.includes("restroom")} onChange={() => toggleCategory("restroom")} />
+                                <span className="filter-label-text">Toilets</span>
+                            </label>
+                                
+                            <label className="filter-bubble gas_station">
+                                <input type="checkbox" value="gas_station" checked={categoryFilters.includes("gas_station")} onChange={() => toggleCategory("gas_station")} />
+                                <span className="filter-label-text">Petrol Stations</span>
+                            </label>
+                                
+                            <label className="filter-bubble charging_station">
+                                <input type="checkbox" value="charging_station" checked={categoryFilters.includes("charging_station")} onChange={() => toggleCategory("charging_station")} />
+                                <span className="filter-label-text">EV Chargers</span>
+                            </label>
                         </div>
+
                         
                         <div className="control-group">
                             <label>Max Radius from Route (km):</label>
-                            <input type="number" value={maxDistanceKm} onChange={(e) => setMaxDistanceKm(Number(e.target.value))} min="1" max="20" />
+                            <input 
+                                type="number" 
+                                value={maxDistanceKm} 
+                                onChange={(e) => {
+                                    const val = Math.max(1, Math.min(Number(e.target.value), 20));
+                                    setMaxDistanceKm(val);
+                                  }} 
+                                min="1" 
+                                max="20" />
                             <button onClick={searchNearbyPlaces}>Find Pitstops</button>
                         </div>
                         
                         <div className="control-group">
                             <h4>Add a Custom Pitstop</h4>
                             <div className="search-row">
-                                <AutocompleteInput
-                                id="pitstop"
-                                placeholder="Search..."
-                                value={pitstop}
-                                onChange={(value) => setPitstop(value)}
-                                />
+                            <AutocompleteInput
+  id="pitstop"
+  placeholder="Search..."
+  value={pitstop}
+  onChange={setPitstop}
+  setPlaceDetails={setPitstopPlaceDetails}
+/>
+
                                 <button onClick={addPitstop}>+</button>
                             </div>
                         </div>
@@ -359,11 +452,12 @@ function AddPitstop() {
                     </div>
                     
                     <div className="pitstop-map">
-                        <MapDisplay
-                        directions={directions}
-                        suggestedPlaces={suggestedPlaces}
-                        onAddPitstop={addSuggestedPitstop}
-                        />
+                    <MapDisplay
+                    directions={directions}
+                    suggestedPlaces={suggestedPlaces}
+                    onAddPitstop={addSuggestedPitstop}
+                    categoryFilters={categoryFilters}
+                    />
                     </div>
                 </div>
             </div>

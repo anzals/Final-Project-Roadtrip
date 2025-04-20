@@ -84,3 +84,14 @@ hr {
     background-color: #e5e7eb;
     color: #111;
 }
+
+@media screen and (max-width: 620px) {
+    .collaborator-container {
+        flex-direction: column;
+    }
+
+    .collaborator-left,
+    .collaborator-right, .form-group {
+        width: 50%;
+    }
+}

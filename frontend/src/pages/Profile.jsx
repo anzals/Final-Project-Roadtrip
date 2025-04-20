@@ -13,6 +13,10 @@ function Profile() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [message, setMessage] = useState('');
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -109,7 +113,7 @@ function Profile() {
             }
         } catch (error) {
             console.error("Error changing password:", error);
-            setMessage("Error updating password. Please check your current password.");
+            setMessage("Error updatating password, please check your current password.");
         }
     };
     
@@ -178,25 +182,51 @@ function Profile() {
                 </div>
 
                 <div className="password-change-card">
-                  <h3>Change Password</h3>
                   <label>Current Password</label>
-                  <input
-                    type="password"
+                  <div className="profile-password-toggle-container">
+                    <input
+                    type={showCurrentPassword ? "text" : "password"}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                  />
+                    />
+                    <span
+                    className="toggle-password"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      {showCurrentPassword ? "Hide" : "Show"}
+                    </span>
+                  </div>
+
                   <label>New Password</label>
-                  <input
-                    type="password"
+                  <div className="profile-password-toggle-container">
+                    <input
+                    type={showNewPassword ? "text" : "password"}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                  />
+                    />
+                    <span
+                    className="toggle-password"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? "Hide" : "Show"}
+                    </span>
+                  </div>
+
                   <label>Confirm New Password</label>
-                  <input
-                    type="password"
+                  <div className="profile-password-toggle-container">
+                    <input
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
+                    />
+                    <span
+                    className="toggle-password"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? "Hide" : "Show"}
+                    </span>
+                  </div>
+                  
                   <button className="save-button" onClick={handleSavePassword}>
                     Save
                   </button>

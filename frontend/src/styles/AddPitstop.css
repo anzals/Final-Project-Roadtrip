@@ -1,15 +1,19 @@
-.add-pitstop-page {
+  .add-pitstop-page {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     padding: 1.5rem;
     font-family: 'Segoe UI', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
   }
+
   
   .pitstop-layout {
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 2rem;
+    min-width: 320px;
   }
   
   .pitstop-controls {
@@ -34,6 +38,60 @@
     margin-bottom: 0.5rem;
     font-size: 0.95rem;
   }
+
+  .filter-bubble {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .filter-bubble input[type="checkbox"] {
+    accent-color: currentColor;
+    transform: scale(1.1);
+  }
+  
+  .filter-label-text {
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    white-space: nowrap;
+  }
+  
+  .filter-bubble.restaurant .filter-label-text {
+    color: #e63946;
+    border-color: #e63946;
+    background-color: rgba(230, 57, 70, 0.1);
+  }
+  
+  .filter-bubble.lodging .filter-label-text {
+    color: #4361ee;
+    border-color: #4361ee;
+    background-color: rgba(67, 97, 238, 0.1);
+  }
+  
+  .filter-bubble.restroom .filter-label-text {
+    color: #9d4edd;
+    border-color: #9d4edd;
+    background-color: rgba(157, 78, 221, 0.1);
+  }
+  
+  .filter-bubble.gas_station .filter-label-text {
+    color: #2a9d8f;
+    border-color: #2a9d8f;
+    background-color: rgba(42, 157, 143, 0.1);
+  }
+  
+  .filter-bubble.charging_station .filter-label-text {
+    color: #f4a261;
+    border-color: #f4a261;
+    background-color: rgba(244, 162, 97, 0.1);
+  }
+  
+  
   
   .search-row {
     display: flex;
@@ -92,4 +150,35 @@
       flex-direction: column;
     }
   }
+
+  @media screen and (max-width: 768px) {
+    .pitstop-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  
+    .pitstop-controls,
+    .pitstop-map {
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    .pitstop-layout {
+      display: flex;
+      flex-direction: column;
+      height: auto; /* remove fixed height so both panels stack naturally */
+    }
+  
+    .pitstop-controls,
+    .pitstop-map {
+      width: 100%;
+    }
+  
+    .pitstop-map {
+      height: 400px;
+    }
+  }
+  
   

@@ -53,8 +53,8 @@ function TripSummary() {
             <div>
                 <div className="trip-summary-page">
                     <h2>{trip.title || `Road Trip to ${trip.destination}`}</h2>
-                    <p><strong>Date:</strong> {formatDate(trip.tripDate)}</p>
-                    <p><strong>From:</strong> {trip.startLocation}</p>
+                    <p><strong>Date:</strong> {formatDate(trip.trip_date)}</p>
+                    <p><strong>From:</strong> {trip.start_location}</p>
                     <p><strong>To:</strong> {trip.destination}</p>
 
                     {pitstops.length > 0 && (

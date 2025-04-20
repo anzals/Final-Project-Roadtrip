@@ -139,6 +139,18 @@
   background-color: #ffe6e6;
 }
 
+.password-toggle-container {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  margin-bottom: 15px;
+}
+
+.password-toggle-container input.form-input {
+  padding-right: 60px;
+}
+
+
 @media (max-width: 1024px) {
   .form-grid {
     width: 90%;
