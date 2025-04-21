@@ -1,7 +1,12 @@
+// Code inspired by:
+// Title: "How to use Google Maps API with React including Directions and Places Autocomplete"
+// Author: Mafia Codes
+// YouTube: https://www.youtube.com/watch?v=iP3DnhCUIsE
+
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLoadScript } from "@react-google-maps/api";
-import { kmToMiles, metersToMiles } from "../utils/convert";
+import { kmToMiles } from "../utils/convert";
 import api from "../api";
 import MapDisplay from "../components/MapDisplay";
 import Layout from "../components/Layout";
@@ -31,6 +36,7 @@ function UpdateRoute() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Load Google Maps script with Places library
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
         libraries: LIBRARIES,
@@ -47,7 +53,8 @@ function UpdateRoute() {
                     ...tripRes.data,
                     route: routeRes.data, // attach route info (includes petrol_cost and passenger_shares)
                   });
-    
+
+                // Parse pitstops if stored as string
                 if (typeof pitstopsData === "string") {
                     try {
                         pitstopsData = JSON.parse(pitstopsData);
@@ -85,7 +92,7 @@ function UpdateRoute() {
                                 const legs = result.routes[0].legs;
                                 const totalDistance = legs.reduce((acc, leg) => acc + leg.distance.value, 0);
                                 const totalDuration = legs.reduce((acc, leg) => acc + leg.duration.value, 0);
-                                setDistance(metersToMiles(totalDistance) + " mi");
+                                setDistance(kmToMiles(totalDistance / 1000)+ " mi");
                                 const hours = Math.floor(totalDuration / 3600);
                                 const minutes = Math.round((totalDuration % 3600) / 60);
                                 const formattedDuration = `${hours > 0 ? hours + " hrs " : ""}${minutes} mins`;
@@ -110,7 +117,7 @@ function UpdateRoute() {
     }, [id, location.state]);
     
 
-    // Calculate route when trip or pitstops change
+    // Recalculate route when trip or pitstops change
     useEffect(() => {
         if (trip && pitstops.length > 0 && isLoaded) {
             calculateRoute();
@@ -135,7 +142,7 @@ function UpdateRoute() {
                 origin: trip.start_location,
                 destination: trip.destination,
                 waypoints: waypoints,
-                optimizeWaypoints: !isReordered,
+                optimizeWaypoints: !isReordered, // Only optimize route id not manually reordered
                 travelMode: window.google.maps.TravelMode.DRIVING,
             },
             (result, status) => {
@@ -155,40 +162,18 @@ function UpdateRoute() {
             }
         );
     };
-    
-    
-    
 
     useEffect(() => {
         if (trip && pitstops.length > 0 && isLoaded) {
             calculateRoute();
         }
     }, [trip, pitstops, isLoaded]);
-
-    const renderPitstops = () => {
-        return pitstops.map((stop, index) => (
-            <p key={index} className="pitstop-item">{stop}</p>
-        ));
-    };
-
-    const renderLegs = () => {
-        return legs.map((leg, index) => (
-            <div key={index} className="segment">
-                <p><strong>{leg.start_address}</strong> → <strong>{leg.end_address}</strong></p>
-                <p className="segment-info">
-                    Distance: {(leg.distance.value / 1000).toFixed(2)} km, Duration: {Math.round(leg.duration.value / 60)} mins
-                </p>
-            </div>
-        ));
-    };    
+  
 
     // Navigate to edit pitstops page
     const editPitstops = () => {
         navigate(`/route/${id}/add-pitstop`);
     };
-
-    
-    
 
     if (!isLoaded) return <div>Loading map...</div>;
     if (loading) return <div>Loading updated route...</div>;
@@ -209,7 +194,7 @@ function UpdateRoute() {
                         {index < arr.length - 1 && legs[index] && (
                           <div className="segment-info-line">
                             <div className="segment-info-text">
-                                <span>Distance: {metersToMiles(legs[index].distance.value)} mi</span><br />
+                                <span>Distance: {kmToMiles(legs[index].distance.value / 1000)} mi</span><br />
                                 <span>Duration: {formatDuration(legs[index].duration.value)}</span>
                             </div>
                           </div>

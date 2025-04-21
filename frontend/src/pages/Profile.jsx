@@ -5,20 +5,21 @@ import Layout from "../components/Layout";
 import "../styles/Profile.css"
 
 function Profile() {
-    const [user, setUser] = useState({ firstName: '', lastName: '', email: '' });
-    const [loading, setLoading] = useState(true);
-    const [editMode, setEditMode] = useState(false);
+    const [user, setUser] = useState({ firstName: '', lastName: '', email: '' }); // User info
+    const [loading, setLoading] = useState(true); // Loading indicator
+    const [editMode, setEditMode] = useState(false); // Edit mode toggle, determines if user can edit data
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [message, setMessage] = useState('');
-    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState(''); 
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Delete profile confirmation
+    const [message, setMessage] = useState(''); // Show message
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false); // Allows user to toggle visibility for password inputs
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const navigate = useNavigate();
 
+    // Fetch user info
     useEffect(() => {
         async function fetchUserData() {
             try {
@@ -40,10 +41,12 @@ function Profile() {
         fetchUserData();
     }, []);
 
+    // Toggle edit mode
     const handleEditToggle = () => {
         setEditMode(!editMode);
     };
 
+    // Save updates profile info
     const handleSaveProfile = async () => {
         try {
             const response = await api.patch('/api/user/profile/', {
@@ -55,6 +58,7 @@ function Profile() {
             });
     
             if (response.status === 200) {
+                // Store updated info locally for display
                 localStorage.setItem("firstName", user.firstName);
                 localStorage.setItem("lastName", user.lastName);
                 localStorage.setItem("email", user.email);
@@ -68,9 +72,8 @@ function Profile() {
             setMessage("Error updating profile.");
         }
     };
-       
 
-
+    // Handle enter and escape when editing profile fields.
     const handleKeyPress = (event) => {
         if (event.key === "Enter") {
             handleSaveProfile();
@@ -79,6 +82,7 @@ function Profile() {
         }
     };
 
+    // Save password update after validating inputs
     const handleSavePassword = async () => {
         if (!currentPassword) {
             setMessage("Please enter your current password.");
@@ -116,7 +120,8 @@ function Profile() {
             setMessage("Error updatating password, please check your current password.");
         }
     };
-    
+
+    // Delete account with confirmation
     const handleDeleteAccount = async () => {
         try {
             const response = await api.delete('/api/user/delete/', {

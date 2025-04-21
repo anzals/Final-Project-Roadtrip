@@ -10,10 +10,10 @@ function Trip({ trip, onDelete, currentUserId }) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    //defensive coding for best practice ensuring frontend stability even though the backend requires a trip date
     const tripDate = trip.trip_date ? new Date(trip.trip_date) : null;
     if (tripDate) tripDate.setHours(0, 0, 0, 0);
 
+    // Format trip date or provide fallback if not available
     const formattedTripDate = trip.trip_date
         ? new Date(trip.trip_date).toLocaleDateString("en-UK", {
             year: "numeric",
@@ -22,6 +22,7 @@ function Trip({ trip, onDelete, currentUserId }) {
         })
         : "No date provided";
 
+    // Handles routing
     const handleDetailsClick = () => {
         if (tripDate && tripDate < today) {
             navigate(`/trip/${trip.id}/summary`);

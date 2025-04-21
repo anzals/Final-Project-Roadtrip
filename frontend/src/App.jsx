@@ -1,3 +1,9 @@
+// Code inspired from 
+// Title: Django & React Web App Tutorial - Authentication, Databases, Deployments & More...
+// Author: Tech With Tim
+// Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+// Lines 25 - 33, 49 - 59: similar template is used for other routes.
+
 import react, { useState } from "react";
 import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import Login from "./pages/Login";

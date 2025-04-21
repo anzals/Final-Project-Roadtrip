@@ -1,3 +1,15 @@
+// Code inspired by:
+// Title: "How to use Google Maps API with React including Directions and Places Autocomplete"
+// Author: Mafia Codes
+// YouTube: https://www.youtube.com/watch?v=iP3DnhCUIsE
+
+// Code inspired by:
+// Title: Drag and Drop with @hello-pangea/dnd
+// Source: https://github.com/hello-pangea/dnd/tree/main/docs/api
+// Library: @hello-pangea/dnd (React drag-and-drop)
+// Used for implementing the draggable and droppable pitstop list UI
+
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {useLoadScript } from "@react-google-maps/api";
@@ -17,7 +29,6 @@ function AddPitstop() {
     const [trip, setTrip] = useState(null);
     const [directions, setDirections] = useState(null);
     const [pitstop, setPitstop] = useState("");
-    const [autocomplete, setAutocomplete] = useState(null);
     const [selectedPitstops, setSelectedPitstops] = useState([]);
     const [categoryFilters, setCategoryFilters] = useState([]);
     const [maxDistanceKm, setMaxDistanceKm] = useState(5); 
@@ -27,13 +38,14 @@ function AddPitstop() {
     const [errorMessage, setErrorMessage] = useState("");
     const [pitstopPlaceDetails, setPitstopPlaceDetails] = useState(null);
 
-
+    // Loads Google Maps with the libraries
     const navigate = useNavigate();
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
         libraries: LIBRARIES,
     });
 
+    // Toggle cetegory filter
     const toggleCategory = (category) => {
         setCategoryFilters(prev =>
             prev.includes(category)
@@ -42,13 +54,14 @@ function AddPitstop() {
         );
     };
     
-
+    // Fetches trip data on load
     useEffect(() => {
         api.get(`/api/trips/${id}/`)
             .then((res) => setTrip(res.data))
             .catch((err) => console.error("Error fetching trip:", err));
     }, [id]);
 
+    // Claculates the basic route between start location and destination
     useEffect(() => {
         if (trip && isLoaded) {
             const directionsService = new window.google.maps.DirectionsService();
@@ -67,6 +80,7 @@ function AddPitstop() {
         }
     }, [trip, isLoaded]);
 
+    // Loads previously saved pitstops from backend
     useEffect(() => {
         async function fetchPitstops() {
             try {
@@ -89,21 +103,8 @@ function AddPitstop() {
         }
         fetchPitstops();
     }, [id]);
-    
 
-    const onLoad = (autoC) => {
-        setAutocomplete(autoC);
-    };
-
-    const onPlaceChanged = () => {
-        if (autocomplete) {
-            const place = autocomplete.getPlace();
-            if (place && place.formatted_address) {
-                setPitstop(place.formatted_address);
-            }
-        }
-    };
-
+    // Add a custom pitstop from autocomplete input
     const addPitstop = async () => {
 
         if (!pitstopPlaceDetails) {
@@ -134,6 +135,7 @@ function AddPitstop() {
         }
     };
 
+    // Maps categories to an emoji
     const categoryEmojis = {
         restaurant: "🍽️",
         lodging: "🏨",
@@ -142,6 +144,7 @@ function AddPitstop() {
         charging_station: "🔌",
     };
 
+    // Adds a pitstop from the nearby suggestion list
     const addSuggestedPitstop = async (place) => {
         const name = `${place.name} - ${place.vicinity}`;
         const label = place._category.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()); // Format: "gas_station" → "Gas Station"
@@ -171,8 +174,7 @@ function AddPitstop() {
         }
     };
     
-    
-
+    // Removes a selected pitstop
     const removePitstop = async (pitstop) => {
         try {
             const response = await api.patch(`/api/routes/${id}/update/`, {
@@ -192,7 +194,7 @@ function AddPitstop() {
         }
     };
 
-    // Handle drag and drop
+    // Handles drag-and-drop reordering of pitstops
     const handleDragEnd = (result) => {
         if (!result.destination) return;
     
@@ -202,26 +204,6 @@ function AddPitstop() {
     
         setSelectedPitstops(updatedPitstops);
         setHasReordered(true); // user manually reordered
-    };
-    
-
-    // Save reordered pitstops
-    const saveReorderedPitstops = async () => {
-        try {
-            const response = await api.patch(`/api/routes/${id}/update/`, {
-                pitstops: pitstops,  // Save the newly reordered pitstops
-            }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
-            });
-    
-            if (response.status === 200) {
-                navigate(`/route/${id}/update-route`, { state: { reorderedPitstops: pitstops } });
-            } else {
-                setErrorMessage("Failed to reorder pitstops.");
-            }
-        } catch (error) {
-            console.error("Error saving reordered pitstops:", error);
-        }
     };
     
 
@@ -240,7 +222,7 @@ function AddPitstop() {
                 origin: trip.start_location,
                 destination: trip.destination,
                 waypoints: waypoints,
-                optimizeWaypoints: !hasReordered, // Only optimize if user hasn't reordered
+                optimizeWaypoints: !hasReordered, // Only optimizes if user hasn't reordered
                 travelMode: window.google.maps.TravelMode.DRIVING,
             },
             async (result, status) => {
@@ -279,8 +261,7 @@ function AddPitstop() {
         );
     };
     
-    
-
+    // Uses Google Places API to find suggested pitstops near route 
     const searchNearbyPlaces = () => {
         if (!directions || !categoryFilters.length) return;
 
@@ -318,23 +299,21 @@ function AddPitstop() {
                         allResults.push(...topResults);
                     }
                                          
-    
+                    // Once requests are finished group and update
                     if (completedRequests === sampledPoints.length * categoryFilters.length) {
                         const groupedByCategory = {};
-
-allResults.forEach((result) => {
-    if (!groupedByCategory[result._category]) {
-        groupedByCategory[result._category] = [];
-    }
-    // avoid duplicates per category
-    if (!groupedByCategory[result._category].some(p => p.place_id === result.place_id)) {
-        groupedByCategory[result._category].push(result);
-    }
-});
-
-// Flatten into one array
-const combined = Object.values(groupedByCategory).flat();
-setSuggestedPlaces(combined);
+                        allResults.forEach((result) => {
+                            if (!groupedByCategory[result._category]) {
+                                groupedByCategory[result._category] = [];
+                            }
+                            // avoid duplicates per category
+                            if (!groupedByCategory[result._category].some(p => p.place_id === result.place_id)) {
+                                groupedByCategory[result._category].push(result);
+                            }
+                        });
+                        // Flatten into one array
+                        const combined = Object.values(groupedByCategory).flat();
+                        setSuggestedPlaces(combined);
 
                     }
                 });
@@ -342,12 +321,13 @@ setSuggestedPlaces(combined);
         });
     };
 
+    // Clear messages after 3 seconnds
     useEffect(() => {
         if (successMessage || errorMessage) {
             const timer = setTimeout(() => {
                 setSuccessMessage("");
                 setErrorMessage("");
-            }, 3000); // 3 seconds
+            }, 3000); 
     
             return () => clearTimeout(timer);
         }
@@ -409,20 +389,20 @@ setSuggestedPlaces(combined);
                         <div className="control-group">
                             <h4>Add a Custom Pitstop</h4>
                             <div className="search-row">
-                            <AutocompleteInput
-  id="pitstop"
-  placeholder="Search..."
-  value={pitstop}
-  onChange={setPitstop}
-  setPlaceDetails={setPitstopPlaceDetails}
-/>
-
+                                <AutocompleteInput
+                                id="pitstop"
+                                placeholder="Search..."
+                                value={pitstop}
+                                onChange={setPitstop}
+                                setPlaceDetails={setPitstopPlaceDetails}
+                                />
                                 <button onClick={addPitstop}>+</button>
                             </div>
                         </div>
                         
                         <div className="control-group">
                             <h4>Selected Pitstops</h4>
+                            <p>You can reorder the pitstops by drag and drop.</p>
                             <DragDropContext onDragEnd={handleDragEnd}>
                                 <Droppable droppableId="pitstops">
                                     {(provided) => (

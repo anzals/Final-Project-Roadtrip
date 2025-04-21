@@ -27,7 +27,7 @@ function EditTrip() {
         libraries: LIBRARIES, 
     });
     
-
+    // Fetch trip details
     useEffect(() => {
         const fetchTrip = async () => {
             try {
@@ -45,15 +45,16 @@ function EditTrip() {
         fetchTrip();
     }, [id]);
 
+    // submit updated trip data to the backend
     const handleUpdate = async () => {
         try {
             await api.patch(`/api/trips/${id}/`, {
                 title,
-                startLocation,
+                start_location: startLocation,
                 destination,
-                tripDate,
+                trip_date: tripDate,
             });
-            setMessage({ type: "success", text: "Trip updated successfully!" });
+            alert("Trip updated successfully!");
     
             // Check if the route exists
             try {
@@ -68,8 +69,8 @@ function EditTrip() {
             alert("Error updating trip.");
         }
     };
-    
 
+    // Delete trip
     const handleDelete = async () => {
         const confirmDelete = window.confirm("Are you sure you want to delete this trip? This action cannot be undone.");
         if (!confirmDelete) return;

@@ -12,6 +12,7 @@ function TripSummary() {
     const [route, setRoute] = useState(null);
     const [collaborators, setCollaborators] = useState([]);
 
+    // Fetch trip, route and collaborator data when the page loads
     useEffect(() => {
         const fetchTripData = async () => {
             try {
@@ -38,7 +39,7 @@ function TripSummary() {
 
     if (!trip || !route) return <div>Loading summary...</div>;
 
-    // If pitstops is a JSON string, parse it
+    // If pitstops is stored as a JSON string, parse it
     let pitstops = route.pitstops;
     if (typeof pitstops === "string") {
         try {

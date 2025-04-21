@@ -1,9 +1,16 @@
+// Code adopted from 
+// Title: Django & React Web App Tutorial - Authentication, Databases, Deployments & More...
+// Author: Tech With Tim
+// Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+// Lines 7 - 62
+
 import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import api from "../api";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants";
 import { useState, useEffect } from "react";
 
+// Protects routes by checking if the user has a valid JWT token.
 function ProtectedRoute({ children }) {
     const [isAuthorized, setIsAuthorized] = useState(null);
 
@@ -11,6 +18,7 @@ function ProtectedRoute({ children }) {
         auth().catch(() => setIsAuthorized(false))
     }, [])
 
+    // Attempts to refresh the access token and updates localStorage; authorizes user if successful
     const refreshToken = async () => {
         const refreshToken = localStorage.getItem(REFRESH_TOKEN);
         try {
@@ -46,6 +54,7 @@ function ProtectedRoute({ children }) {
         }
     };
 
+    // Shows loading state whilst authorisation is taking place
     if (isAuthorized === null) {
         return <div>Loading...</div>;
     }

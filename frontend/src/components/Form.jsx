@@ -1,12 +1,17 @@
+// Code adopted and developed from
+// Title: Django & React Web App Tutorial - Authentication, Databases, Deployments & More...
+// Author: Tech With Tim
+// Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import "../styles/Form.css";
 import LoadingIndicator from "./LoadingIndicator";
-import { validateEmail, validatePassword, doPasswordsMatch } from '../utils/validate';
+import { validateEmail } from '../utils/validate';
 
-
+// Handles user login and registration
 function Form({ route, method }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -17,16 +22,19 @@ function Form({ route, method }) {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
+    // Sets image and text based on method
     const name = method === "login" ? "Login" : "Register";
     const imageSrc = method === "login" ? "images/login-img.jpg" : "images/signup-img.jpg";
 
+    // Sends data from the form to the backend
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
         setFormError("");
     
         const userData = { email, password };
-    
+
+        // Validates registration logic
         if (method === "register") {
             if (!firstName || !lastName || !email || !password) {
                 setFormError("All fields are required.");
@@ -56,8 +64,9 @@ function Form({ route, method }) {
             if (method === "login") {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-    
-                const profileRes = await api.get("/api/user/profile/", {
+
+                // Fetches and stores users first namr
+                const profileRes = await api.get("/api/user/profile/", { 
                     headers: {
                         Authorization: `Bearer ${res.data.access}`,
                     },
@@ -66,7 +75,7 @@ function Form({ route, method }) {
                 localStorage.setItem("firstName", profileRes.data.first_name);
                 navigate("/");
             } else {
-                navigate("/login");
+                navigate("/login"); // Redirects to login after successful registration
             }
     
         } catch (error) {
@@ -80,7 +89,8 @@ function Form({ route, method }) {
         
                 serverMessage = firstError;
             }
-        
+
+            // Form errors
             if (method === "login" && serverMessage) {
                 setFormError("Invalid email and/or password.");
             } else if (method === "register" && serverMessage?.toLowerCase().includes("already exists")) {
@@ -143,21 +153,21 @@ function Form({ route, method }) {
                             required
                         />
                         <div className="password-toggle-container">
-  <input
-    className="form-input"
-    type={showPassword ? "text" : "password"}
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    placeholder="Password"
-    required
-  />
-  <span
-    className="toggle-password"
-    onClick={() => setShowPassword(!showPassword)}
-  >
-    {showPassword ? "Hide" : "Show"}
-  </span>
-</div>
+                            <input
+                            className="form-input"
+                            type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Password"
+                            required
+                            />
+                            <span
+                            className="toggle-password"
+                            onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </span>
+                        </div>
 
                         {loading && <LoadingIndicator />}
                         <button className="form-button" type="submit">{name}</button>

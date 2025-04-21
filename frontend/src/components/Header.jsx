@@ -18,18 +18,16 @@ function Header() {
         navigate("/");
     };
 
+    // Clears session and navigates to login page
     const handleLogout = () => {
         localStorage.clear();
         setIsLoggedIn(false);
         navigate("/login");
     };
 
+    // Navigates to profile oage
     const handleProfile = () => {
         navigate("/profile");
-    };
-
-    const toggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
     };
 
     return (

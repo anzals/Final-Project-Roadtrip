@@ -10,6 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+# Code adopted from 
+# Title: Django & React Web App Tutorial - Authentication, Databases, Deployments & More...
+# Author: Tech With Tim
+# Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+# Lines specified below
+
+# Code from Tech With Tim Video - Line 20 - 25
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -29,6 +36,7 @@ SECRET_KEY = 'django-insecure-irp^21mwddv5hetst^)$827b9xg2f!3xkzo)*z0@75%ugd@*hm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Code from Tech With Tim Video - Line 40 - 54
 ALLOWED_HOSTS = ["*"]
 
 REST_FRAMEWORK = {
@@ -42,7 +50,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1), 
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,  # Ensures a new refresh token is issued with each refresh
     "BLACKLIST_AFTER_ROTATION": True,  # Old refresh tokens are invalidated
@@ -50,7 +58,7 @@ SIMPLE_JWT = {
 }
 
 # Application definition
-
+# Code from Tech With Tim Video - Line 69 - 71
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -64,7 +72,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware", # Code from Tech With Tim Video - Line 75
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -135,7 +143,7 @@ STATIC_URL = 'static/'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True # Code from Tech With Tim Video - Line 146
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -143,6 +151,13 @@ CORS_ALLOWED_ORIGINS = [
 
 
 # Send email using gmail SMTP
+# Code adopted from 
+# Title: Send Emails in Django using Gmail SMTP | A Step-by-Step Guide
+# Author: CodeWithMuh
+# Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+# Lines specified below
+
+# Code from CodeWithMuh Video - Line 161 - 168
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -154,6 +169,8 @@ DEFAULT_FROM_EMAIL = 'Roadtrip Planner <roadtripwebapp@gmail.com>'
 
 APPEND_SLASH = False
 
+# Shows errors and debug messages in the terminal while developing.
+# Reference Doc: https://docs.djangoproject.com/en/stable/topics/logging/
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

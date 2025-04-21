@@ -12,7 +12,14 @@ import json
 from django.core.mail import send_mail
 from django.db import models
 
+# Code adopted from 
+# Title: Django & React Web App Tutorial - Authentication, Databases, Deployments & More...
+# Author: Tech With Tim
+# Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+# Code specified below
+
 # Lists all trips the user owns or collaborates on, and allows the creation of a new trip.
+# Code inspired by Tech With Tim Video - Line 23 - 40
 class TripListCreate(generics.ListCreateAPIView):
     serializer_class = TripSerializer
     permission_classes = [IsAuthenticated]  # Ensures only logged-in users can access
@@ -49,8 +56,8 @@ class TripDelete(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
-
 # Allows anyone to register an account and sends a welcome email
+# Code inspired by Tech With Tim Video - Line 61 - 64
 class CreateUserView(generics.CreateAPIView):
     queryset = RoadtripUser.objects.all()  # Creates a user using the custom RoadtripUser model
     serializer_class = UserSerializer
@@ -115,7 +122,7 @@ class ChangePasswordView(APIView):
         user.save()
         return Response({"message": "Password updated successfully!"}, status=status.HTTP_200_OK)
     
-# Permenantly deletes user's account.
+# Permenantly deletes the user's account.
 class DeleteAccountView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -130,7 +137,7 @@ class TripDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = TripSerializer
     permission_classes = [IsAuthenticated]
 
-# Lists all the routes where the user is trip author. Also allows creating or updating a route for a trip.
+# Lists all the routes where the user is the trip author. Also allows creating or updating a route for a trip.
 class RouteListCreate(generics.ListCreateAPIView):
     serializer_class = RouteSerializer
     permission_classes = [IsAuthenticated]
@@ -164,11 +171,13 @@ class RouteListCreate(generics.ListCreateAPIView):
         except Trip.DoesNotExist:
             raise serializers.ValidationError("Trip not found or not owned by the user.")
 
+# Gets a route by its id
 class RouteDetailView(generics.RetrieveAPIView):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
     permission_classes = [IsAuthenticated]
 
+# Gets a route that is associated with a given trip Id.
 class RouteByTripIdView(generics.RetrieveAPIView):
     serializer_class = RouteSerializer
     permission_classes = [IsAuthenticated]
@@ -180,7 +189,7 @@ class RouteByTripIdView(generics.RetrieveAPIView):
         except Route.DoesNotExist:
             raise serializers.ValidationError("Route not found")
 
-
+# Add a pitstops to the route list of pitstops, if the user has access.
 class AddPitstopView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -219,7 +228,7 @@ class AddPitstopView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
+# Updates a route's details including distance, duration, path, pitstops, and petrol cost data.
 class UpdateRouteView(generics.UpdateAPIView):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
@@ -247,15 +256,17 @@ class UpdateRouteView(generics.UpdateAPIView):
             print(f"Error updating route: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# Customised Login view that Handles failed login attempts with error messages. 
 class LoginViewWithFeedback(TokenObtainPairView):
     serializer_class = LoginSerializerWithFeedback
 
+# Retrieves a user's profile by their Id.
 class GetUserByIdView(RetrieveAPIView):
     queryset = RoadtripUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
+# Manages collaboraotrs for a specific trip: lists, adds and removes collaborators.
 class TripCollaboratorsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

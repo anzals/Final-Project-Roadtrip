@@ -12,10 +12,10 @@ function CollaboratorManager({ tripId }) {
     isOwner: false
   });
 
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState(null);
+  const [email, setEmail] = useState(''); // Email input for a new collaborator
+  const [message, setMessage] = useState(null); // Feedback message
 
-  // fetch function
+  // Fetches owner and collaborator data function for the given trip
   const loadCollaborators = async () => {
     setState(prev => ({ ...prev, loading: true }));
 
@@ -46,6 +46,7 @@ function CollaboratorManager({ tripId }) {
     loadCollaborators();
   }, [tripId]);
 
+  // Adds a collaborator if the email is valid and the list is under the limit of 5.
   const handleAddCollaborator = async () => {
     if (state.collaborators.length >= 5) {
       setMessage({ text: "You can only have up to 5 collaborators.", type: "error" });
@@ -57,6 +58,7 @@ function CollaboratorManager({ tripId }) {
       return;
     }
 
+    // Prevents user from adding themselves as a collaborator
     if (
       state.owner?.email &&
       email.trim().toLowerCase() === state.owner.email.toLowerCase()
@@ -87,7 +89,7 @@ function CollaboratorManager({ tripId }) {
     if (message) {
       const timer = setTimeout(() => {
         setMessage(null);
-      }, 3000); // disappear after 3 seconds
+      }, 3000); // message disappears after 3 seconds
   
       return () => clearTimeout(timer);
     }

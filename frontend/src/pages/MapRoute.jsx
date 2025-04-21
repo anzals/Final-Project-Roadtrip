@@ -15,8 +15,8 @@ function MapRoute() {
     const navigate = useNavigate();
 
     const [trip, setTrip] = useState(null);
-    const [directions, setDirections] = useState(null);
-    const [distance, setDistance] = useState("");
+    const [directions, setDirections] = useState(null); // Google Maps directions result
+    const [distance, setDistance] = useState(""); 
     const [duration, setDuration] = useState("");
     const [hasRoute, setHasRoute] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -34,7 +34,7 @@ function MapRoute() {
             .catch(err => console.error("Error fetching trip:", err));
     }, [id]);
 
-    // Check if route already saved
+    // Check if a route already exists for this trip
     useEffect(() => {
         if (!trip) return;
 
@@ -51,6 +51,7 @@ function MapRoute() {
             });
     }, [trip]);
 
+    // Clear success messages after a few seconds
     useEffect(() => {
         if (successMessage) {
           const timer = setTimeout(() => {
@@ -61,7 +62,7 @@ function MapRoute() {
       }, [successMessage]);
       
 
-    // Fetch directions and save only if not already saved
+    // Calculate and save directions only if not already saved
     useEffect(() => {
         if (!trip || !isLoaded || hasRoute) return;
 
@@ -76,7 +77,8 @@ function MapRoute() {
                 if (status === "OK") {
                     const route = result.routes[0].legs[0];
                     setDirections(result);
-                    
+
+                    // Convert to distance ti miles and duration to hours/minutes
                     const distanceInMiles = metersToMiles(route.distance.value);
                     setDistance(`${distanceInMiles} mi`);
                     const durationInSeconds = route.duration.value;
@@ -84,7 +86,7 @@ function MapRoute() {
                     const minutes = Math.round((durationInSeconds % 3600) / 60);
                     setDuration(`${hours > 0 ? hours + " hrs " : ""}${minutes} mins`);
 
-
+                    // Save the new route to the database
                     const newRoute = {
                         trip: trip.id,
                         start_location: trip.start_location,
@@ -117,7 +119,7 @@ function MapRoute() {
     }, [trip, isLoaded, hasRoute]);
 
     const navigateToAddPitstop = () => navigate(`/route/${id}/add-pitstop`);
-    const goToDashboard = () => navigate("/");
+    const goToHome = () => navigate("/");
 
     if (!isLoaded) return <div>Loading map...</div>;
     if (!trip) return <div>Loading trip details...</div>;
@@ -136,7 +138,7 @@ function MapRoute() {
                     <RouteDetails trip={trip} distance={distance} duration={duration} />
                     <div className="route-controls">
                         <button onClick={navigateToAddPitstop}>Add Pitstops</button>
-                        <button onClick={goToDashboard}>Back to Dashboard</button>
+                        <button onClick={goToHome}>Back to Dashboard</button>
                     </div>
                 </div>
 

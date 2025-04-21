@@ -3,17 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import CollaboratorManager from "../components/CollaboratorManager";
 import Layout from "../components/Layout"
-import Header from "../components/Header";
 import "../styles/TripDetails.css";
 
 function TripDetails() {
-    const { id } = useParams();
+    const { id } = useParams(); // trip Id from URL
     const navigate = useNavigate();
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState(null); // Current user Id
     const [trip, setTrip] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Fetch trip info
     useEffect(() => {
         api.get(`/api/trips/${id}/`)
             .then((res) => {
@@ -27,6 +27,7 @@ function TripDetails() {
             });
     }, [id]);
 
+    // Get current user Id
     useEffect(() => {
         const storedUserId = localStorage.getItem("userId");
         if (storedUserId) {
@@ -39,7 +40,8 @@ function TripDetails() {
     if (!trip || !trip.author) return <p>Loading trip info...</p>;
 
     return (
-        <>
+        <Layout>
+            <>
             <div className="trip-details-wrapper">
                 <div className="trip-details-container">
                     <h2 className="trip-title">{trip.title}</h2>
@@ -71,6 +73,7 @@ function TripDetails() {
                 </div>
             </div>
         </>
+        </Layout>
     );
 }
 

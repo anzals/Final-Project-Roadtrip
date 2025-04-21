@@ -1,10 +1,16 @@
+// Code inspired by:
+// Title: "How to use Google Maps API with React including Directions and Places Autocomplete"
+// Author: Mafia Codes
+// YouTube: https://www.youtube.com/watch?v=iP3DnhCUIsE
+
 import { GoogleMap, DirectionsRenderer, Marker, InfoWindow, useLoadScript } from "@react-google-maps/api";
 import { useState } from "react";
 import api from "../api";
 
 
-const LIBRARIES = ["places"];
+const LIBRARIES = ["places"]; // Libraries required by the Google Maps API
 
+// Returns specific colour marker icons based on the cateory of the place.
 function getIconColor(category) {
     switch (category) {
         case "restaurant":
@@ -23,9 +29,10 @@ function getIconColor(category) {
     }
 }
 
-  
 
 function MapDisplay({ directions, suggestedPlaces = [], onAddPitstop, categoryFilters = [], zoom = 7, containerStyle }) {
+
+    // Loads google maps script
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
         libraries: LIBRARIES,
@@ -33,7 +40,7 @@ function MapDisplay({ directions, suggestedPlaces = [], onAddPitstop, categoryFi
 
     const [selectedPlace, setSelectedPlace] = useState(null);
 
-    const mapCenter = directions?.routes[0]?.bounds?.getCenter?.() || { lat: 53.5, lng: -2 }; // fallback: middle of the UK
+    const mapCenter = directions?.routes[0]?.bounds?.getCenter?.() || { lat: 53.5, lng: -2 }; // Centers map bsed on route or fallbacks to the middle of the UK
 
 
     if (!isLoaded) return <div>Loading map...</div>;
@@ -62,7 +69,9 @@ function MapDisplay({ directions, suggestedPlaces = [], onAddPitstop, categoryFi
                 }
             }}
         >
+            {/* Renders the route on the map */}
             {directions && <DirectionsRenderer directions={directions} />}
+            {/* Renders the markers for suggested pitstops on the map */}
             {suggestedPlaces.map((place) => (
                 <Marker
                 key={place.place_id + place._category}
@@ -74,6 +83,8 @@ function MapDisplay({ directions, suggestedPlaces = [], onAddPitstop, categoryFi
                 }}
                 />
             ))}
+
+            {/* Shows an InfoWindow when a place is selected */}
             {selectedPlace && (
                 <InfoWindow
                 position={selectedPlace.geometry.location}

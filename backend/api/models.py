@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.conf import settings
 
+# Code inspired from 
+# Title: Django & React Web App Tutorial - Authentication, Databases, Deployments & More...
+# Author: Tech With Tim
+# Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+
 class Trip(models.Model):
     title = models.CharField(max_length=100) 
     start_location = models.CharField(max_length=255)  
@@ -33,6 +38,12 @@ class Route(models.Model):
     def __str__(self):
         return f"Route for {self.trip.title} - {self.distance}, {self.duration}"
 
+# Code adopted from 
+# Title: YT-Django-Theory-Create-Custom-User-Models-Admin-Testing
+# Author: veryacademy
+# Github link: https://github.com/veryacademy/YT-Django-Theory-Create-Custom-User-Models-Admin-Testing/blob/master/users/models.py
+# Code inspired by veryacademy Github - Line 47 - 75
+# Handles custom user creation by using email instead of username.
 class RoadtripUserManager(BaseUserManager):
     def create_user(self, email, password=None, first_name=None, last_name=None, **extra_fields):
         if not email:
@@ -48,6 +59,7 @@ class RoadtripUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+# Custom user models that uses email as the unique Id for authentication.
 class RoadtripUser(AbstractBaseUser):
     email = models.EmailField(unique=True)  # Use email as the only identifier
     first_name = models.CharField(max_length=30, blank=True, null=True)  

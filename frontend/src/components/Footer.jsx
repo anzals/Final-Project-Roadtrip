@@ -1,6 +1,6 @@
 import "../styles/Footer.css"; 
-import { FaInstagram, FaYoutube } from "react-icons/fa";
 
+// Footer displays the contact details and copyright.
 function Footer() {
     return (
         <footer className="footer">

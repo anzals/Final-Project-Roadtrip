@@ -33,6 +33,7 @@ function PetrolCalculator() {
 
     const people = trip ? [trip.author, ...(trip.collaborators || [])] : [];
 
+    // Load trip data
     useEffect(() => {
         api.get(`/api/trips/${id}/`)
             .then((res) => {
@@ -49,6 +50,7 @@ function PetrolCalculator() {
             });
     }, [id]);
 
+    // Normalise fuel type names
     const normaliseFuelType = (type) => {
         const lower = type.toLowerCase();
         if (lower.includes('electric') && lower.includes('petrol')) return 'Hybrid';
@@ -59,21 +61,25 @@ function PetrolCalculator() {
         return type;
     };
 
+    // Filter cars with valid MPG and normalise fuel types
     const validCars = fuelData.filter(car => car["WLTP Imperial Combined"] > 0).map(car => ({
         ...car,
         normalizedFuel: normaliseFuelType(car["Fuel Type"])
     }));
 
+    // Dropdwon options
     const makes = [...new Set(validCars.map(car => car.Manufacturer))];
     const fuelTypes = [...new Set(validCars.filter(car => car.Manufacturer === selectedMake).map(car => car.normalizedFuel))];
     const models = validCars.filter(car => car.Manufacturer === selectedMake && car.normalizedFuel === selectedFuelType);
 
+    // Estimate petrol cost from inputs
     const calculateCost = () => {
         if (!fuelEfficiency || fuelEfficiency <= 0 || !fuelPrice || fuelPrice <= 0) {
             setMessage({ type: "error", text: "Please fill in all fields before calculating." });
             return;
         }
 
+        // Equation for working out fuel price for trip
         const distanceInMiles = distance;
         const gallons = distanceInMiles / fuelEfficiency; 
         const litres = gallons * 4.54609; 
@@ -83,6 +89,7 @@ function PetrolCalculator() {
         autoDivideCost(totalCost);
     };
 
+    // Automatically divide cost between passangers, option to exlude driver
     const autoDivideCost = (total) => {
         if (numPassengers <= 0) return;
 
@@ -99,6 +106,7 @@ function PetrolCalculator() {
         setManualShares(newShares);
     };
 
+    // Track manual cost edits
     const handleManualShareChange = (index, value) => {
         const updated = [...manualShares];
         updated[index] = value;
@@ -108,6 +116,7 @@ function PetrolCalculator() {
 
     const manualTotal = manualShares.reduce((sum, val) => sum + parseFloat(val || 0), 0);
 
+    // Reset shares to default split
     const resetShares = () => {
         if (numPassengers <= 0) return;
 
@@ -125,6 +134,7 @@ function PetrolCalculator() {
         setSharesEdited(false);
     };
 
+    // Save estimated petrol data to backend
     const savePetrolData = () => {
         const data = {
             petrol_cost: parseFloat(estimatedCost),
@@ -145,15 +155,17 @@ function PetrolCalculator() {
         });
     };
 
+    // Clear error message after 3 seconds
     useEffect(() => {
         if (message?.type === "error") {
-            const timer = setTimeout(() => setMessage(null), 4000);
+            const timer = setTimeout(() => setMessage(null), 3000);
             return () => clearTimeout(timer);
         }
-    }, [message]);
+    }, [message]);    
 
     return (
-        <div className="petrol-calculator-page">
+        <Layout>
+            <div className="petrol-calculator-page">
             <h2 className="trip-title">Estimate Petrol Cost</h2>
             <div className="main-container">
                 <div className="form-section">
@@ -393,6 +405,7 @@ function PetrolCalculator() {
                 )}
             </div>
         </div>
+        </Layout>
     );
 }
 

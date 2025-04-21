@@ -1,3 +1,9 @@
+// Code adopted from 
+// Title: Django & React Web App Tutorial - Authentication, Databases, Deployments & More...
+// Author: Tech With Tim
+// Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+// Lines 7 - 27
+
 import axios from "axios";
 import { ACCESS_TOKEN } from "./constants";
 

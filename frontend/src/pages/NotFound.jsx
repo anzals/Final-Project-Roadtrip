@@ -5,7 +5,7 @@ function NotFound() {
         <Layout>
             <div> 
                 <h1>404 Not Found</h1>
-                <p>The page you're looking for doesn't exist!</p>
+                <h4>The page you are looking for does not exist!</h4>
             </div>
         </Layout>
     )

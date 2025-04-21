@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoadScript, Autocomplete } from "@react-google-maps/api";
+import { useLoadScript } from "@react-google-maps/api";
 import api from "../api";
 import "../styles/PlanTrip.css"
 import AutocompleteInput from "../components/AutocompleteInput";
@@ -19,6 +19,7 @@ function PlanTrip({ addTrip }) {
 
     const navigate = useNavigate();
 
+    // Load Google MAps API
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
         libraries: LIBRARIES, 
@@ -27,27 +28,31 @@ function PlanTrip({ addTrip }) {
 
     if (!isLoaded) return <div>Loading Google Maps...</div>;
 
+    // Handles plan trip form submission
     const createTrip = (e) => {
         e.preventDefault();
         setFormError("");  // clear previous error
-    
+
+        // Ensures locations were selected from autocomplete
         if (!startPlaceDetails || !destinationPlaceDetails) {
             setFormError("Please select valid locations from the suggestions.");
             return;
         }
-    
+
+        // Format trip for backend
         const newTrip = {
             title,
             start_location: startPlaceDetails.formatted_address,
             destination: destinationPlaceDetails.formatted_address,
             trip_date: tripDate,
         };
-    
+
+        // Send trip data to the backend
         api.post("/api/trips/", newTrip)
             .then((res) => {
                 if (res.status === 201) {
-                    addTrip(res.data); 
-                    navigate(`/trip/${res.data.id}`);
+                    addTrip(res.data);  // Update frontend trip list
+                    navigate(`/trip/${res.data.id}`); // Go to trip details page
                 } else {
                     setFormError("Failed to create trip.");
                 }
@@ -56,12 +61,6 @@ function PlanTrip({ addTrip }) {
                 setFormError("An error occurred. Please try again.");
                 console.error(err);
             });
-    };
-    
-    
-
-    const goToHome = () => {
-        navigate("/");
     };
 
     

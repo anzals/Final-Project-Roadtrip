@@ -10,31 +10,31 @@ import "../styles/Home.css";
 function Home({ trips, getTrips }) {
     const [firstName, setFirstName] = useState("");
     const [userId, setUserId] = useState(null);
-    const [showPast, setShowPast] = useState(false);
+    const [showPast, setShowPast] = useState(false); // toggle to show/hide past trips
 
-    // Ensure today is at midnight for accurate comparison
+    // Ensure today is at midnight for accurate categorisation
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // Sort trips by date
     const validTrips = trips.filter(trip => trip.trip_date); // make sure trip_date exists
-    const sortedTrips = [...validTrips].sort((a, b) => new Date(a.trip_date) - new Date(b.trip_date)
-);
+    const sortedTrips = [...validTrips].sort((a, b) => new Date(a.trip_date) - new Date(b.trip_date));
+    
+    // Get trips that are upcoming
+    const upcomingTrips = sortedTrips.filter((trip) => {
+        const tripDate = new Date(trip.trip_date);
+        tripDate.setHours(0, 0, 0, 0);
+        return tripDate >= today;
+    });
 
-const upcomingTrips = sortedTrips.filter((trip) => {
-    const tripDate = new Date(trip.trip_date);
-    tripDate.setHours(0, 0, 0, 0);
-    return tripDate >= today;
-});
+    // Get trips that have past
+    const pastTrips = sortedTrips.filter((trip) => {
+        const tripDate = new Date(trip.trip_date);
+        tripDate.setHours(0, 0, 0, 0);
+        return tripDate < today;
+    });
 
-const pastTrips = sortedTrips.filter((trip) => {
-    const tripDate = new Date(trip.trip_date);
-    tripDate.setHours(0, 0, 0, 0);
-    return tripDate < today;
-});
-
-
-    // Get user's first name
+    // Get user's info
     useEffect(() => {
         const storedName = localStorage.getItem("firstName");
         if (storedName) {
@@ -64,6 +64,7 @@ const pastTrips = sortedTrips.filter((trip) => {
         getTrips();
     }, [getTrips]);
 
+    // Delete trips by Id
     const deleteTrip = (id) => {
         api.delete(`/api/trips/delete/${id}/`)
             .then((res) => {

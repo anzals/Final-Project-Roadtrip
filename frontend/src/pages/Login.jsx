@@ -1,7 +1,11 @@
-import Form from "../components/Form" //connects to form structure
+// Code adopted from 
+// Title: Django & React Web App Tutorial - Authentication, Databases, Deployments & More...
+// Author: Tech With Tim
+// Youtube link: https://www.youtube.com/watch?v=c-QsfbznSXI&t=7203s
+
+import Form from "../components/Form" 
 import Layout from "../components/Layout";
 import "../styles/Login.css"
-import api from "../api";
 
 function Login() {
     return (

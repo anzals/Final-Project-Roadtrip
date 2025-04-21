@@ -1,5 +1,7 @@
+// Displays route details for a given trip
+
 function RouteDetails({ trip, distance, duration }) {
-    if (!trip) return null;
+    if (!trip) return null; // Return nothing if trip is nnot available
 
     return (
         <div className="route-details">
