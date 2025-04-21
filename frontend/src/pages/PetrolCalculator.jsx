@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { kmToMiles, metersToMiles } from "../utils/convert";
 import api from "../api";
 import fuelData from '../data/fuelData.json';
-import Layout from "../components/Layout"
+import Layout from "../components/Layout";
 import '../styles/PetrolCalculator.css';
 
 function PetrolCalculator() {

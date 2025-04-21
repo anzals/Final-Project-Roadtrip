@@ -11,15 +11,6 @@
   min-height: 220px;
  }
 
- .trip-title {
-  color: #FDFBF5;
-  grid-column: span 3;
-  font-size: 1.5rem;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  font-size: 25px;
-}
 
 .trip-date {
   grid-column: span 3;
@@ -126,11 +117,13 @@
 
 .trip-title {
   font-size: 22px;
+  grid-column: span 3;
   font-weight: bold;
   color: #207d86;
   text-align: center;
   margin-bottom: 10px;
-}
+  justify-content: center;
+} 
 
 .trip-details-container p {
   font-size: 15px;

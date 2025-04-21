@@ -159,6 +159,7 @@ function Profile() {
                 <div className="profile-card">
                   <div className="profile-info">
                     <h3>User Details</h3>
+                    <p>Click the edit button and enter to save changes.</p>
                     <label>First Name</label>
                     <input
                       type="text"

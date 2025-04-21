@@ -9,6 +9,7 @@ function Header() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
+    // Checks if user is logged in
     useEffect(() => {
         const token = localStorage.getItem(ACCESS_TOKEN);
         setIsLoggedIn(token !== null);

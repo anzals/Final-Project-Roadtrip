@@ -1,5 +1,4 @@
-/* Layout.css */
-
+/* App-level container that wraps Header, content, and Footer */
 .app-container {
     display: flex;
     flex-direction: column;
@@ -18,6 +17,7 @@
     box-sizing: border-box;
   }
   
+  /* Responsive padding adjustments*/
   @media screen and (max-width: 768px) {
     .main-content {
       padding: 1.5rem 1rem;
